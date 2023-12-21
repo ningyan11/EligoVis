@@ -3,8 +3,10 @@
 packageName=scidx-1
 minor=0
 revision=0
-
 tarName=${packageName}.${minor}.${revision}
+
+rm -rf ${tarName}.tar.gz
+rm -rf ${tarName}
 make dist
 
 tar -xzvf ${tarName}.tar.gz

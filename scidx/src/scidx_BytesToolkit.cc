@@ -10,7 +10,8 @@
 #include "scidx_BytesToolkit.h"
 #include <scidx_defines.h>
 
-namespace scidx{	
+namespace scidx{
+
 
 void symTransform_8bytes(unsigned char data[8])
 {
