@@ -1,2 +1,2 @@
 AUTOMAKE_OPTIONS=foreign
-SUBDIRS = scidx examples
+SUBDIRS = zstd scidx examples

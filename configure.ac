@@ -134,6 +134,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([memchr memset strchr strtol])
 
 AC_CONFIG_FILES([Makefile
+		 zstd/Makefile
                  scidx/Makefile
 		 examples/Makefile])
 AC_OUTPUT

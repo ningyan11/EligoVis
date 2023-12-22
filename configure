@@ -19753,7 +19753,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile scidx/Makefile examples/Makefile"
+ac_config_files="$ac_config_files Makefile zstd/Makefile scidx/Makefile examples/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20967,6 +20967,7 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "zstd/Makefile") CONFIG_FILES="$CONFIG_FILES zstd/Makefile" ;;
     "scidx/Makefile") CONFIG_FILES="$CONFIG_FILES scidx/Makefile" ;;
     "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
 
