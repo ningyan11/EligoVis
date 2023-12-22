@@ -1,4 +1,5 @@
 #include <vector>
+#include "scidx_block_min_max.h"
 
 std::vector<size_t> positionToIndices(size_t position, const std::vector<size_t>& shape) 
 {

@@ -7,35 +7,128 @@
 #include <fstream>
 #include <sstream>
 
+#include <random>
+
 #include <scidx.h>
 
-int main() {
-	
-    std::vector<ScidxInterval<float>> intervals;
-    std::ifstream file("minmax_values.txt");
-    std::string line;
+// Random number generator
+std::random_device rd;
+std::mt19937 gen(rd());
 
-    while (std::getline(file, line)) {
-        
-        if (line.find("Min:") != std::string::npos && line.find("Max:") != std::string::npos) {
-            std::istringstream iss(line);
-            std::string minLabel, minVal, maxLabel, maxVal;
-            iss >> minLabel >> minVal >> maxLabel >> maxVal;
+// Function to generate a random interval
+template <typename T>
+ScidxInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
+    std::uniform_real_distribution<T> distLow(0, maxLow);
+    std::uniform_real_distribution<T> distHigh(distLow(gen), maxHigh);
 
+    ScidxInterval<T> interval;
+    interval.low = distLow(gen);
+    interval.high = distHigh(gen);
 
-            if (minLabel == "Min:" && maxLabel == "Max:") {
-                float min = std::stof(minVal);
-                float max = std::stof(maxVal);
-                //std::cout << "min: " << min << std::endl;
+    return interval;
+}
 
-                ScidxInterval<float> interval;
-                interval.low = min;
-                interval.high = max;
+int main(int argc, char *argv[]) {
 
-                intervals.push_back(interval);
+    char *inputFileName;
+    size_t nDim = 0;
+    std::vector<size_t> dataShape;
+    std::vector<size_t> blockShape;
+    for (size_t i = 0; i < argc; i++)
+    {
+        std::string arg = argv[i];
+        if (arg == "--input_file")
+        {
+            if (i+1 < argc)
+            {
+                inputFileName = argv[i+1];
+            }
+            else
+            {
+                std::cerr << "--input option requires one argument." << std::endl;
+                return 1;
+            }            
+        }
+        else if (arg == "--dimensions")
+        {
+            if (i+1 < argc)
+            {
+                std::stringstream ss_dim(argv[i+1]);
+                ss_dim >> nDim;
+            }
+            else
+            {
+                std::cerr << "--dimensions option requires one argument." << std::endl;
+                return 1;
+            } 
+        }
+        else if (arg == "--data_shape")
+        {
+            if (nDim)
+            {
+                if (i+nDim < argc)
+                {
+                    for (size_t j = i+1; j < i+1+nDim; j++)
+                    {
+                        dataShape.push_back(atoi(argv[j]));
+                    }
+                    
+                }
+                else
+                {
+                    std::cerr << "--data_shape option requires [# of dimensions] argument." << std::endl;
+                    return 1;
+                }  
+            }
+            else
+            {
+                std::cerr << "# of dimensions must be greater than 0." << std::endl;
+                return 1;                
             }
         }
+        else if (arg == "--block_shape")
+        {
+            if (nDim)
+            {
+                if (i+nDim < argc)
+                {
+                    for (size_t j = i+1; j < i+1+nDim; j++)
+                    {
+                        blockShape.push_back(atoi(argv[j]));
+                    }
+                    
+                }
+                else
+                {
+                    std::cerr << "--blockShape option requires [# of dimensions] argument." << std::endl;
+                    return 1;
+                }  
+            }
+        }
+        
     }
+
+    size_t nElem;
+    int status;
+    float *dataBuffer = scidx_readFloatData(inputFileName, &nElem, &status);
+
+    std::cout << "read in " << nElem << " data elements." << std::endl;
+
+    std::vector<float> data{dataBuffer, dataBuffer+nElem};
+
+    std::vector<std::vector<float>> blockMinMax = obtainBlockMinMax(data, dataShape, blockShape);
+    
+	
+    std::vector<ScidxInterval<float>> intervals;
+
+    for (size_t i = 0; i < blockMinMax.size(); i++)
+    {
+        ScidxInterval<float> interval;
+        interval.low = blockMinMax[i][0];
+        interval.high = blockMinMax[i][1];
+        intervals.push_back(interval);
+    }
+    
 
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
 
@@ -43,11 +136,6 @@ int main() {
     {
         //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
         rbIntervalTree.insert(intervals[i], i);
-        if (i == 50)
-        {
-            break;
-        }
-        
         
     }
 
@@ -100,6 +188,23 @@ int main() {
                 std::cout << "        " << "[" << allSubTrees[i][j][k]->interval.low << ", " << allSubTrees[i][j][k]->interval.high << "]" << std::endl;
             }
             
+        }
+        
+    }
+
+    const int numberQueryOfIntervals = 20;
+    const float maxLow = -10000.0;
+    const float maxHigh = 10000.0;
+
+    for (size_t i = 0; i < numberQueryOfIntervals; i++)
+    {
+        ScidxInterval<float> queryInterval = generateRandomInterval(maxLow, maxHigh);
+        std::cout << "query interval: [" << queryInterval.low << ", " << queryInterval.high << "]" << std::endl;
+        std::vector<ScidxNode<float>*> result = rbIntervalTree.query(queryInterval);
+        std::cout << "overlapped intervals: " << std::endl;
+        for (size_t j = 0; j < result.size(); j++)
+        {
+            std::cout << "    " << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
         }
         
     }
