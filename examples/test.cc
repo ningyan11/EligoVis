@@ -30,11 +30,11 @@ ScidxInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
 
 int main(int argc, char *argv[]) {
 
-    char *inputFileName;
+    char *inputFileName = NULL;
     size_t nDim = 0;
     std::vector<size_t> dataShape;
     std::vector<size_t> blockShape;
-    for (size_t i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         std::string arg = argv[i];
         if (arg == "--input_file")
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
         {
             if (nDim)
             {
-                if (i+nDim < argc)
+                if ((int)(i+nDim) < argc)
                 {
                     for (size_t j = i+1; j < i+1+nDim; j++)
                     {
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
         {
             if (nDim)
             {
-                if (i+nDim < argc)
+                if ((int)(i+nDim) < argc)
                 {
                     for (size_t j = i+1; j < i+1+nDim; j++)
                     {

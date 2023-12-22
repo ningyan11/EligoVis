@@ -3119,7 +3119,7 @@ ac_config_headers="$ac_config_headers config.h"
 
 # Checks for programs.
 : ${CFLAGS=-O3 -std=c99 -Wall}
-: ${CPPFLAGS=-O3 -Wall}
+: ${CPPFLAGS=-O3 -std=c++11 -Wall}
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
