@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 : ${CFLAGS=-O3 -std=c99 -Wall}
-: ${CPPFLAGS=-O3 -Wall}
+: ${CPPFLAGS=-O3 -std=c++11 -Wall}
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_FC

@@ -15,6 +15,7 @@ struct ScidxInterval {
 template <typename T>
 struct ScidxNode {
     ScidxInterval<T> interval;
+    size_t id;
     T max_high; // Maximum high value among current node's interval and its descendants
     ScidxColor color;
     ScidxNode* parent;
@@ -22,8 +23,8 @@ struct ScidxNode {
     ScidxNode* right;
 
     // Constructor with default color as RED
-    ScidxNode(const ScidxInterval<T>& _interval, ScidxColor _color = RED, ScidxNode* _parent = nullptr, ScidxNode* _left = nullptr, ScidxNode* _right = nullptr)
-        : interval(_interval), max_high(_interval.high), color(_color), parent(_parent), left(_left), right(_right) {}
+    ScidxNode(const ScidxInterval<T>& _interval, size_t _id, ScidxColor _color = RED, ScidxNode* _parent = nullptr, ScidxNode* _left = nullptr, ScidxNode* _right = nullptr)
+        : interval(_interval), id(_id), max_high(_interval.high), color(_color), parent(_parent), left(_left), right(_right) {}
 };
 
 template <typename T>
@@ -39,29 +40,12 @@ private:
 public:
     ScidxRedBlackIntervalTree() : root(nullptr) {}
     ScidxNode<T>* getRoot() const;
-    void insert(const ScidxInterval<T>&);
+    void insert(const ScidxInterval<T>&, const size_t&);
     void display();
+    std::vector<ScidxNode<T>*> query(const ScidxInterval<T>&);
 };
 
-template <typename T>
-void displayHelper(ScidxNode<T>* root, int space) {
-    if (root == nullptr) {
-        return;
-    }
 
-    space += 5;
-
-    displayHelper(root->right, space);
-
-    std::cout << std::endl;
-    for (int i = 5; i < space; i++) {
-        std::cout << " ";
-    }
-    std::cout << "[" << root->interval.low << ", " << root->interval.high << "]"
-              << " (max_high: " << root->max_high << ")"
-              << "(" << (root->color == RED ? "RED" : "BLACK") << ")";
-    displayHelper(root->left, space);
-}
 
 template <typename T>
 void ScidxRedBlackIntervalTree<T>::display() {
@@ -75,6 +59,14 @@ void ScidxRedBlackIntervalTree<T>::updateMaxHigh(ScidxNode<T>* node) {
         node->max_high = std::max(node->interval.high, std::max(node->left ? node->left->max_high : node->interval.high,
                                                                node->right ? node->right->max_high : node->interval.high));
     }
+}
+
+// Method to query intervals that intersect with the given interval
+template <typename T>
+std::vector<ScidxNode<T>*> ScidxRedBlackIntervalTree<T>::query(const ScidxInterval<T>& queryInterval) {
+    std::vector<ScidxNode<T>*> result;
+    queryHelper(root, queryInterval, result);
+    return result;
 }
 
 template <typename T>
@@ -186,8 +178,8 @@ void ScidxRedBlackIntervalTree<T>::fixInsertion(ScidxNode<T>*& node) {
 }
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval) {
-    ScidxNode<T>* newNode = new ScidxNode<T>(interval);
+void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval, const size_t& id) {
+    ScidxNode<T>* newNode = new ScidxNode<T>(interval, id);
     ScidxNode<T>* parent = nullptr;
     ScidxNode<T>* current = root;
 
@@ -217,6 +209,57 @@ void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval) {
         updateMaxHigh(newNode);
         newNode = newNode->parent;
     }
+}
+
+template <typename T>
+void displayHelper(ScidxNode<T>* root, int space) {
+    if (root == nullptr) {
+        return;
+    }
+
+    space += 5;
+
+    displayHelper(root->right, space);
+
+    std::cout << std::endl;
+    for (int i = 5; i < space; i++) {
+        std::cout << " ";
+    }
+    std::cout << "[" << root->interval.low << ", " << root->interval.high << "]"
+              << " (max_high: " << root->max_high << ")"
+              << "(" << (root->color == RED ? "RED" : "BLACK") << ")";
+    displayHelper(root->left, space);
+}
+
+// Recursive helper function for querying
+template <typename T>
+void queryHelper(ScidxNode<T>* currentNode, const ScidxInterval<T>& queryInterval, std::vector<ScidxNode<T>*>& result) {
+    if (currentNode == nullptr) {
+        return;
+    }
+
+    // If the interval intersects with the query interval, add it to the result
+    if (doIntervalsIntersect(currentNode->interval, queryInterval)) {
+        result.push_back(currentNode);
+    }
+
+    // If the left child's max high value is greater than or equal to the query interval's low value,
+    // then there may be intersecting intervals in the left subtree
+    if (currentNode->left != nullptr && currentNode->left->max_high >= queryInterval.low) {
+        queryHelper(currentNode->left, queryInterval, result);
+    }
+
+    // If the right child exists and its low value is less than or equal to the query interval's high value,
+    // then there may be intersecting intervals in the right subtree
+    if (currentNode->right != nullptr && currentNode->right->interval.low <= queryInterval.high) {
+        queryHelper(currentNode->right, queryInterval, result);
+    }
+}
+
+// Function to check if two intervals intersect
+template <typename T>
+bool doIntervalsIntersect(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2) {
+    return (interval1.low <= interval2.high && interval1.high >= interval2.low);
 }
 
 template <typename T>

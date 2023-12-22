@@ -42,7 +42,7 @@ int main() {
     for (size_t i = 0; i < intervals.size(); i++)
     {
         //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
-        rbIntervalTree.insert(intervals[i]);
+        rbIntervalTree.insert(intervals[i], i);
         if (i == 50)
         {
             break;
