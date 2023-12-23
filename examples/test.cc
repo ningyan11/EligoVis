@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
         std::cout << "overlapped intervals: " << std::endl;
         for (size_t j = 0; j < result.size(); j++)
         {
-            std::cout << "    " << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
+            std::cout << "    [" << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
         }
         
     }
