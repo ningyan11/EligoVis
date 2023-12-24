@@ -121,8 +121,19 @@ int main(int argc, char *argv[]) {
 	
     std::vector<ScidxInterval<float>> intervals;
 
+    float global_min = 0;
+    float global_max = 0;
     for (size_t i = 0; i < blockMinMax.size(); i++)
     {
+        if (blockMinMax[i][0] < global_min)
+        {
+            global_min = blockMinMax[i][0];
+        }
+        if (blockMinMax[i][1] > global_max)
+        {
+            global_max = blockMinMax[i][1];
+        }        
+        
         ScidxInterval<float> interval;
         interval.low = blockMinMax[i][0];
         interval.high = blockMinMax[i][1];
@@ -193,8 +204,8 @@ int main(int argc, char *argv[]) {
     }
 
     const int numberQueryOfIntervals = 20;
-    const float maxLow = -10000.0;
-    const float maxHigh = 10000.0;
+    const float maxLow = global_min;
+    const float maxHigh = global_max;
 
     for (size_t i = 0; i < numberQueryOfIntervals; i++)
     {
