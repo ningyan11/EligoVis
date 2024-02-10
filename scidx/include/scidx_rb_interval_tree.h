@@ -3,46 +3,50 @@
 
 #include <scidx_defines.h>
 
+
+#include <iostream>
+#include <vector>
+
 typedef enum ScidxColor 
 { RED, BLACK } ScidxColor;
 
 template <typename T>
-struct ScidxInterval {
+struct ScidxrbInterval {
     T low;
     T high;
 };
 
 template <typename T>
-struct ScidxNode {
-    ScidxInterval<T> interval;
+struct ScidxrbNode {
+    ScidxrbInterval<T> rbInterval;
     size_t id;
     T max_high; // Maximum high value among current node's interval and its descendants
     ScidxColor color;
-    ScidxNode* parent;
-    ScidxNode* left;
-    ScidxNode* right;
+    ScidxrbNode* parent;
+    ScidxrbNode* left;
+    ScidxrbNode* right;
 
     // Constructor with default color as RED
-    ScidxNode(const ScidxInterval<T>& _interval, size_t _id, ScidxColor _color = RED, ScidxNode* _parent = nullptr, ScidxNode* _left = nullptr, ScidxNode* _right = nullptr)
-        : interval(_interval), id(_id), max_high(_interval.high), color(_color), parent(_parent), left(_left), right(_right) {}
+    ScidxrbNode(const ScidxrbInterval<T>& _interval, size_t _id, ScidxColor _color = RED, ScidxrbNode* _parent = nullptr, ScidxrbNode* _left = nullptr, ScidxrbNode* _right = nullptr)
+        : rbInterval(_interval), id(_id), max_high(_interval.high), color(_color), parent(_parent), left(_left), right(_right) {}
 };
 
 template <typename T>
 class ScidxRedBlackIntervalTree {
 private:
-    ScidxNode<T>* root;
+    ScidxrbNode<T>* root;
 
-    void rotateLeft(ScidxNode<T>*&);
-    void rotateRight(ScidxNode<T>*&);
-    void fixInsertion(ScidxNode<T>*&);
-    void updateMaxHigh(ScidxNode<T>*);
+    void rotateLeft(ScidxrbNode<T>*&);
+    void rotateRight(ScidxrbNode<T>*&);
+    void fixInsertion(ScidxrbNode<T>*&);
+    void updateMaxHigh(ScidxrbNode<T>*);
 
 public:
     ScidxRedBlackIntervalTree() : root(nullptr) {}
-    ScidxNode<T>* getRoot() const;
-    void insert(const ScidxInterval<T>&, const size_t&);
+    ScidxrbNode<T>* getRoot() const;
+    void insert(const ScidxrbInterval<T>&, const size_t&);
     void display();
-    std::vector<ScidxNode<T>*> query(const ScidxInterval<T>&);
+    std::vector<ScidxrbNode<T>*> query(const ScidxrbInterval<T>&);
 };
 
 
@@ -54,29 +58,29 @@ void ScidxRedBlackIntervalTree<T>::display() {
 }
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::updateMaxHigh(ScidxNode<T>* node) {
+void ScidxRedBlackIntervalTree<T>::updateMaxHigh(ScidxrbNode<T>* node) {
     if (node != nullptr) {
-        node->max_high = std::max(node->interval.high, std::max(node->left ? node->left->max_high : node->interval.high,
-                                                               node->right ? node->right->max_high : node->interval.high));
+        node->max_high = std::max(node->rbInterval.high, std::max(node->left ? node->left->max_high : node->rbInterval.high,
+                                                               node->right ? node->right->max_high : node->rbInterval.high));
     }
 }
 
 // Method to query intervals that intersect with the given interval
 template <typename T>
-std::vector<ScidxNode<T>*> ScidxRedBlackIntervalTree<T>::query(const ScidxInterval<T>& queryInterval) {
-    std::vector<ScidxNode<T>*> result;
+std::vector<ScidxrbNode<T>*> ScidxRedBlackIntervalTree<T>::query(const ScidxrbInterval<T>& queryInterval) {
+    std::vector<ScidxrbNode<T>*> result;
     queryHelper(root, queryInterval, result);
     return result;
 }
 
 template <typename T>
-ScidxNode<T>* ScidxRedBlackIntervalTree<T>::getRoot() const {
+ScidxrbNode<T>* ScidxRedBlackIntervalTree<T>::getRoot() const {
     return root;
 }
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::rotateLeft(ScidxNode<T>*& node) {
-    ScidxNode<T>* rightChild = node->right;
+void ScidxRedBlackIntervalTree<T>::rotateLeft(ScidxrbNode<T>*& node) {
+    ScidxrbNode<T>* rightChild = node->right;
     node->right = rightChild->left;
 
     if (rightChild->left != nullptr) {
@@ -102,8 +106,8 @@ void ScidxRedBlackIntervalTree<T>::rotateLeft(ScidxNode<T>*& node) {
 }
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::rotateRight(ScidxNode<T>*& node) {
-    ScidxNode<T>* leftChild = node->left;
+void ScidxRedBlackIntervalTree<T>::rotateRight(ScidxrbNode<T>*& node) {
+    ScidxrbNode<T>* leftChild = node->left;
     node->left = leftChild->right;
 
     if (leftChild->right != nullptr) {
@@ -130,13 +134,13 @@ void ScidxRedBlackIntervalTree<T>::rotateRight(ScidxNode<T>*& node) {
 
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::fixInsertion(ScidxNode<T>*& node) {
+void ScidxRedBlackIntervalTree<T>::fixInsertion(ScidxrbNode<T>*& node) {
     while (node != nullptr && node != root && node->parent != nullptr && node->parent->color == RED) {
-        ScidxNode<T>* parent = node->parent;
-        ScidxNode<T>* grandparent = parent->parent;
+        ScidxrbNode<T>* parent = node->parent;
+        ScidxrbNode<T>* grandparent = parent->parent;
 
         if (parent == grandparent->left) {
-            ScidxNode<T>* uncle = grandparent->right;
+            ScidxrbNode<T>* uncle = grandparent->right;
 
             if (uncle != nullptr && uncle->color == RED) {
                 parent->color = BLACK;
@@ -154,7 +158,7 @@ void ScidxRedBlackIntervalTree<T>::fixInsertion(ScidxNode<T>*& node) {
                 node = parent;
             }
         } else {
-            ScidxNode<T>* uncle = grandparent->left;
+            ScidxrbNode<T>* uncle = grandparent->left;
 
             if (uncle != nullptr && uncle->color == RED) {
                 parent->color = BLACK;
@@ -178,14 +182,14 @@ void ScidxRedBlackIntervalTree<T>::fixInsertion(ScidxNode<T>*& node) {
 }
 
 template <typename T>
-void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval, const size_t& id) {
-    ScidxNode<T>* newNode = new ScidxNode<T>(interval, id);
-    ScidxNode<T>* parent = nullptr;
-    ScidxNode<T>* current = root;
+void ScidxRedBlackIntervalTree<T>::insert(const ScidxrbInterval<T>& interval, const size_t& id) {
+    ScidxrbNode<T>* newNode = new ScidxrbNode<T>(interval, id);
+    ScidxrbNode<T>* parent = nullptr;
+    ScidxrbNode<T>* current = root;
 
     while (current != nullptr) {
         parent = current;
-        if (newNode->interval.low < current->interval.low) {
+        if (newNode->rbInterval.low < current->rbInterval.low) {
             current = current->left;
         } else {
             current = current->right;
@@ -196,7 +200,7 @@ void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval, cons
 
     if (parent == nullptr) {
         root = newNode;
-    } else if (newNode->interval.low < parent->interval.low) {
+    } else if (newNode->rbInterval.low < parent->rbInterval.low) {
         parent->left = newNode;
     } else {
         parent->right = newNode;
@@ -212,7 +216,7 @@ void ScidxRedBlackIntervalTree<T>::insert(const ScidxInterval<T>& interval, cons
 }
 
 template <typename T>
-void displayHelper(ScidxNode<T>* root, int space) {
+void displayHelper(ScidxrbNode<T>* root, int space) {
     if (root == nullptr) {
         return;
     }
@@ -225,7 +229,7 @@ void displayHelper(ScidxNode<T>* root, int space) {
     for (int i = 5; i < space; i++) {
         std::cout << " ";
     }
-    std::cout << "[" << root->interval.low << ", " << root->interval.high << "]"
+    std::cout << "[" << root->rbInterval.low << ", " << root->rbInterval.high << "]"
               << " (max_high: " << root->max_high << ")"
               << "(" << (root->color == RED ? "RED" : "BLACK") << ")";
     displayHelper(root->left, space);
@@ -233,7 +237,7 @@ void displayHelper(ScidxNode<T>* root, int space) {
 
 // Recursive helper function for querying
 template <typename T>
-void queryHelper(ScidxNode<T>* currentNode, const ScidxInterval<T>& queryInterval, std::vector<ScidxNode<T>*>& result) {
+void queryHelper(ScidxrbNode<T>* currentNode, const ScidxrbInterval<T>& queryInterval, std::vector<ScidxrbNode<T>*>& result) {
     if (currentNode == nullptr) {
         return;
     }
@@ -258,27 +262,27 @@ void queryHelper(ScidxNode<T>* currentNode, const ScidxInterval<T>& queryInterva
 
 // Function to check if two intervals intersect
 template <typename T>
-bool doIntervalsIntersect(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2) {
+bool doIntervalsIntersect(const ScidxrbInterval<T>& interval1, const ScidxrbInterval<T>& interval2) {
     return (interval1.low <= interval2.high && interval1.high >= interval2.low);
 }
 
 template <typename T>
-void levelOrderTraversal(ScidxNode<T>* root, int levelsToTraverse, std::vector<std::vector<ScidxNode<T>*>>& result) {
+void levelOrderTraversal(ScidxrbNode<T>* root, int levelsToTraverse, std::vector<std::vector<ScidxrbNode<T>*>>& result) {
     if (root == nullptr || levelsToTraverse <= 0) {
         return;
     }
 
-    std::queue<ScidxNode<T>*> nodeQueue;
+    std::queue<ScidxrbNode<T>*> nodeQueue;
     nodeQueue.push(root);
 
     int currentLevel = 0;
 
     while (!nodeQueue.empty() && currentLevel < levelsToTraverse) {
         int nodesInCurrentLevel = nodeQueue.size();
-        std::vector<ScidxNode<T>*> currentLevelNodes;
+        std::vector<ScidxrbNode<T>*> currentLevelNodes;
 
         for (int i = 0; i < nodesInCurrentLevel; ++i) {
-            ScidxNode<T>* current = nodeQueue.front();
+            ScidxrbNode<T>* current = nodeQueue.front();
             nodeQueue.pop();
 
             // Process the current node
@@ -298,6 +302,40 @@ void levelOrderTraversal(ScidxNode<T>* root, int levelsToTraverse, std::vector<s
 
         // Store the result of the current level
         result.push_back(currentLevelNodes);
+    }
+}
+
+
+template <typename T>
+void convertTreeToArray(ScidxrbNode<T>* root, std::vector<int>& result) {
+    if (root == nullptr) {
+        return;
+    }
+
+    std::queue<ScidxrbNode<T>*> nodeQueue;
+    nodeQueue.push(root);
+
+    while (!nodeQueue.empty()) {
+        ScidxrbNode<T>* current = nodeQueue.front();
+        nodeQueue.pop();
+
+        // 检查当前节点是否为 nullptr
+        if (current != nullptr) {
+            result.push_back((current->left != nullptr) ? 1 : 0);
+            result.push_back((current->right != nullptr) ? 1 : 0);
+
+            // 将非空子节点添加到队列
+            if (current->left != nullptr) {
+                nodeQueue.push(current->left);
+            }
+            if (current->right != nullptr) {
+                nodeQueue.push(current->right);
+            }
+        } else {
+            // 当前节点为 nullptr 时插入两个空节点
+            result.push_back(0);
+            result.push_back(0);
+        }
     }
 }
 

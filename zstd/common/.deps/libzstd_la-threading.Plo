@@ -1,0 +1,1 @@
+./common/libzstd_la-threading.lo: common/threading.c

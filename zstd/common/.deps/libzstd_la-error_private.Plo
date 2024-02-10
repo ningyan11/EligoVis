@@ -1,0 +1,10 @@
+./common/libzstd_la-error_private.lo: common/error_private.c \
+  common/error_private.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h \
+  common/zstd_errors.h
+
+common/error_private.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h:
+
+common/zstd_errors.h:

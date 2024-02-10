@@ -1,6 +1,6 @@
 /**
  * Macro definition
- * Authors: Ning Yang, Lipeng Wan, Sheng Di
+ * Authors: Ning Yan, Lipeng Wan, Sheng Di
  *
 **/
 

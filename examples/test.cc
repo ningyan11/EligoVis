@@ -10,6 +10,9 @@
 #include <random>
 
 #include <scidx.h>
+#include <scidx_Huffman.h>
+#include <scidx_rb_interval_tree.h>
+#include <scidx_avl_interval_tree.h>
 
 // Random number generator
 std::random_device rd;
@@ -17,16 +20,21 @@ std::mt19937 gen(rd());
 
 // Function to generate a random interval
 template <typename T>
-ScidxInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
+ScidxrbInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
     std::uniform_real_distribution<T> distLow(0, maxLow);
     std::uniform_real_distribution<T> distHigh(distLow(gen), maxHigh);
 
-    ScidxInterval<T> interval;
-    interval.low = distLow(gen);
-    interval.high = distHigh(gen);
+    ScidxrbInterval<T> rbInterval;
+    rbInterval.low = distLow(gen);
+    rbInterval.high = distHigh(gen);
 
-    return interval;
+    return rbInterval;
 }
+
+void printIntervalTreeArray(std::vector<int>& arr);
+size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
+void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename);
+
 
 int main(int argc, char *argv[]) {
 
@@ -118,8 +126,9 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::vector<float>> blockMinMax = obtainBlockMinMax(data, dataShape, blockShape);
     
+    saveToFile(blockMinMax, "outputOfPoints.txt");
 	
-    std::vector<ScidxInterval<float>> intervals;
+    std::vector<ScidxrbInterval<float>> intervals;
 
     float global_min = 0;
     float global_max = 0;
@@ -134,7 +143,7 @@ int main(int argc, char *argv[]) {
             global_max = blockMinMax[i][1];
         }        
         
-        ScidxInterval<float> interval;
+        ScidxrbInterval<float> interval;
         interval.low = blockMinMax[i][0];
         interval.high = blockMinMax[i][1];
         intervals.push_back(interval);
@@ -145,32 +154,43 @@ int main(int argc, char *argv[]) {
 
     for (size_t i = 0; i < intervals.size(); i++)
     {
-        //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
+        std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
         rbIntervalTree.insert(intervals[i], i);
         
     }
 
-    std::cout << "Red-Black Interval Tree after insertions:" << std::endl;
+    std::cout << "RB Interval Tree after insertions:" << std::endl;
     rbIntervalTree.display();
 
-    int levelsToTraverse = 3;
 
-    std::vector<std::vector<std::vector<ScidxNode<float>*>>> allSubTrees;
-    std::vector<std::vector<ScidxNode<float>*>> firstSubTreeNodesInLevels;
+    //put the intervalTree into the int array
+    std::vector<int> resultArray;
+    ScidxrbNode<float>* rbIntervalTreeRoot = rbIntervalTree.getRoot();
+    convertTreeToArray(rbIntervalTreeRoot, resultArray);
+    printIntervalTreeArray(resultArray);
+
+    std::vector<unsigned char> byteArray;
+    size_t byteLength = convertIntArray2ByteArray_fast_1b(resultArray, byteArray);
+    std::cout << "Byte Array Length: " << byteLength << std::endl;
+
+    int levelsToTraverse = 8;
+
+    std::vector<std::vector<std::vector<ScidxrbNode<float>*>>> allSubTrees;
+    std::vector<std::vector<ScidxrbNode<float>*>> firstSubTreeNodesInLevels;
 
     levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels);
     allSubTrees.push_back(firstSubTreeNodesInLevels);
 
-    std::vector<ScidxNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
+    std::vector<ScidxrbNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
 
-    std::vector<ScidxNode<float>*> rootsOfNewSubTrees;
+    std::vector<ScidxrbNode<float>*> rootsOfNewSubTrees;
 
     rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfFirstSubTree.begin(), lastLevelOfFirstSubTree.end());
 
     while (!rootsOfNewSubTrees.empty())
     {
         
-        ScidxNode<float>* node = rootsOfNewSubTrees.front();
+        ScidxrbNode<float>* node = rootsOfNewSubTrees.front();
         rootsOfNewSubTrees.erase(rootsOfNewSubTrees.begin());  
 
         if (node->left == nullptr && node->right == nullptr)
@@ -179,10 +199,10 @@ int main(int argc, char *argv[]) {
         }
         
 
-        std::vector<std::vector<ScidxNode<float>*>> currentSubTreeNodesInLevels;
+        std::vector<std::vector<ScidxrbNode<float>*>> currentSubTreeNodesInLevels;
         levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels);   
         allSubTrees.push_back(currentSubTreeNodesInLevels);
-        std::vector<ScidxNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
+        std::vector<ScidxrbNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
 
         rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
 
@@ -196,14 +216,94 @@ int main(int argc, char *argv[]) {
             std::cout << "    level #" << j << ":" << std::endl;
             for (size_t k = 0; k < allSubTrees[i][j].size(); k++)
             {
-                std::cout << "        " << "[" << allSubTrees[i][j][k]->interval.low << ", " << allSubTrees[i][j][k]->interval.high << "]" << std::endl;
+                std::cout << "        " << "[" << allSubTrees[i][j][k]->rbInterval.low << ", " << allSubTrees[i][j][k]->rbInterval.high << "]" << std::endl;
             }
             
         }
         
     }
 
-    const int numberQueryOfIntervals = 20;
+
+    float error_bound = 1E3;
+    std::vector<int> mergedCompressedTypesLow;
+
+    /* for (size_t i = 0; i < allSubTrees.size(); i++)
+    {
+        std::vector<std::vector<ScidxNode<float>*>> curSubTree = allSubTrees[i];
+        std::vector<std::vector<int>> curAllCompressedType = compress_indextest(curSubTree, error_bound);
+        for (size_t m = 0; m < curAllCompressedType.size(); ++m) {
+            for (size_t n = 0; n < curAllCompressedType[m].size(); ++n) {
+                std::cout << curAllCompressedType[m][n] << " ";
+            }
+        std::cout << std::endl;
+        }
+
+        if (!curAllCompressedType.empty()){
+            mergedCompressedTypesLow.insert(mergedCompressedTypesLow.end(), curAllCompressedType[0].begin(), curAllCompressedType[0].end());        
+        }
+        
+    } 
+
+    //mainBuffer for all encode subtrees
+    std::vector<unsigned char> mainBuffer;
+
+    //size of every encoded subtree
+    std::vector<size_t> encodedSizes;
+
+    
+    //init huffmanttree for all data
+    unsigned char *treeBuffer;
+    size_t treeBufferSize;
+    //init
+    free(treeBuffer);
+
+    for (size_t i = 0; i < allSubTrees.size(); i++)
+    {
+        std::vector<std::vector<ScidxNode<float>*>> curSubTree = allSubTrees[i];
+        std::vector<std::vector<int>> curAllCompressedType = compress_indextest(curSubTree, error_bound);
+        std::vector<int> quant_low = curAllCompressedType[0];
+        //encode
+        
+        
+    }
+
+    // write size to file
+    std::ofstream outFile("encoded_sizes.bin", std::ios::binary);
+    for (size_t size : encodedSizes) {
+        outFile.write(reinterpret_cast<char*>(&size), sizeof(size_t));
+    }
+    outFile.close();
+    
+    */
+
+    std::vector<std::vector<ScidxrbNode<float>*>> firstrbSubTree = allSubTrees[0];
+    
+    std::vector<int> compress_data_layered_low = compress_data_layered(firstrbSubTree, error_bound);
+
+    std::cout << "Values in firstIntArray_Low_fix: ";
+    for (int value : compress_data_layered_low) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+
+    std::vector<std::vector<int>> firstCompressedType = compress_index(firstrbSubTree, error_bound);
+    std::vector<int> firstIntArray_Low = firstCompressedType[0];
+    std::cout << "Values in firstIntArray_Low: ";
+    for (int value : firstIntArray_Low) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+    std::vector<int> firstIntArray_MaxHigh = firstCompressedType[1];
+    std::cout << "Values in firstIntArray_MaxHigh: ";
+    for (int value : firstIntArray_MaxHigh) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+
+    /*const int numberQueryOfIntervals = 20;
     const float maxLow = global_min;
     const float maxHigh = global_max;
 
@@ -218,8 +318,72 @@ int main(int argc, char *argv[]) {
             std::cout << "    [" << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
         }
         
-    }
+    }*/
     
     
     return 0;
 }
+
+
+void printIntervalTreeArray(std::vector<int>& arr) {
+    std::cout << "Interval Tree Array: ";
+    
+    for (int value : arr) {
+        std::cout << value << " ";
+    }
+    
+    std::cout << std::endl;
+}
+
+size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result) {
+    size_t byteLength = 0;
+    size_t intArrayLength = intArray.size();
+    
+    if (intArrayLength % 8 == 0)
+        byteLength = intArrayLength / 8;
+    else
+        byteLength = intArrayLength / 8 + 1;
+
+    result.resize(byteLength, 0); // Resize and initialize result vector
+
+    size_t n = 0;
+    int tmp, type;
+    
+    for (size_t i = 0; i < byteLength; ++i) {
+        tmp = 0;
+
+        for (size_t j = 0; j < 8 && n < intArrayLength; ++j) {
+            type = intArray[n];
+
+            if (type == 1)
+                tmp |= (1 << (7 - j));
+
+            ++n;
+        }
+
+        result[i] = static_cast<unsigned char>(tmp);
+    }
+
+    return byteLength;
+}
+
+
+void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename) {
+    std::ofstream outfile(filename);
+
+    if (!outfile) {
+        std::cerr << "无法打开文件：" << filename << std::endl;
+        return;
+    }
+
+    for (const auto& row : data) {
+        for (const auto& value : row) {
+            outfile << value << " ";
+        }
+        outfile << std::endl;
+    }
+
+    std::cout << "数据已成功保存到文件：" << filename << std::endl;
+}
+
+

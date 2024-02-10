@@ -2,6 +2,7 @@
 #define _SCIDX_BLOCK_MIN_MAX_H
 
 #include <scidx_defines.h>
+#include <limits>
 
 
 std::vector<size_t> positionToIndices(size_t position, const std::vector<size_t>& shape);
@@ -20,8 +21,10 @@ std::vector<std::vector<T>> obtainBlockMinMax(std::vector<T> data, std::vector<s
         blockCountOnEachDim.push_back(dataShape[i]/blockShape[i]);
         total_blocks *= dataShape[i]/blockShape[i];
     }
-    std::vector<T> block_mins(total_blocks, 0);
-    std::vector<T> block_maxs(total_blocks, 0);
+    std::vector<T> block_mins(total_blocks, std::numeric_limits<T>::infinity());
+    std::vector<T> block_maxs(total_blocks, -std::numeric_limits<T>::infinity());
+
+
 
     for (size_t p = 0; p < nElem; p++)
     {

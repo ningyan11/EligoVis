@@ -1,0 +1,10 @@
+./deprecated/libzstd_la-zbuff_decompress.lo: \
+  deprecated/zbuff_decompress.c deprecated/zbuff.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h \
+  zstd.h
+
+deprecated/zbuff.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h:
+
+zstd.h:
