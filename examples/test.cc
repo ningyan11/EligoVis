@@ -13,6 +13,7 @@
 #include <scidx_Huffman.h>
 #include <scidx_rb_interval_tree.h>
 #include <scidx_avl_interval_tree.h>
+#include <zstd.h>
 
 // Random number generator
 std::random_device rd;
@@ -34,6 +35,7 @@ ScidxrbInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
 void printIntervalTreeArray(std::vector<int>& arr);
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
 void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename);
+void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
 
 
 int main(int argc, char *argv[]) {
@@ -173,7 +175,7 @@ int main(int argc, char *argv[]) {
     size_t byteLength = convertIntArray2ByteArray_fast_1b(resultArray, byteArray);
     std::cout << "Byte Array Length: " << byteLength << std::endl;
 
-    int levelsToTraverse = 8;
+    int levelsToTraverse = 20;
 
     std::vector<std::vector<std::vector<ScidxrbNode<float>*>>> allSubTrees;
     std::vector<std::vector<ScidxrbNode<float>*>> firstSubTreeNodesInLevels;
@@ -230,8 +232,7 @@ int main(int argc, char *argv[]) {
     /* for (size_t i = 0; i < allSubTrees.size(); i++)
     {
         std::vector<std::vector<ScidxNode<float>*>> curSubTree = allSubTrees[i];
-        std::vector<std::vector<int>> curAllCompressedType = compress_indextest(curSubTree, error_bound);
-        for (size_t m = 0; m < curAllCompressedType.size(); ++m) {
+         for (size_t m = 0; m < curAllCompressedType.size(); ++m) {
             for (size_t n = 0; n < curAllCompressedType[m].size(); ++n) {
                 std::cout << curAllCompressedType[m][n] << " ";
             }
@@ -257,15 +258,7 @@ int main(int argc, char *argv[]) {
     //init
     free(treeBuffer);
 
-    for (size_t i = 0; i < allSubTrees.size(); i++)
-    {
-        std::vector<std::vector<ScidxNode<float>*>> curSubTree = allSubTrees[i];
-        std::vector<std::vector<int>> curAllCompressedType = compress_indextest(curSubTree, error_bound);
-        std::vector<int> quant_low = curAllCompressedType[0];
-        //encode
-        
-        
-    }
+   
 
     // write size to file
     std::ofstream outFile("encoded_sizes.bin", std::ios::binary);
@@ -277,30 +270,16 @@ int main(int argc, char *argv[]) {
     */
 
     std::vector<std::vector<ScidxrbNode<float>*>> firstrbSubTree = allSubTrees[0];
-    
-    std::vector<int> compress_data_layered_low = compress_data_layered(firstrbSubTree, error_bound);
 
-    std::cout << "Values in firstIntArray_Low_fix: ";
-    for (int value : compress_data_layered_low) {
-        std::cout << value << " ";
-    }
-    std::cout << std::endl;
+    compressTree(firstrbSubTree, error_bound);
 
-
-    std::vector<std::vector<int>> firstCompressedType = compress_index(firstrbSubTree, error_bound);
-    std::vector<int> firstIntArray_Low = firstCompressedType[0];
-    std::cout << "Values in firstIntArray_Low: ";
-    for (int value : firstIntArray_Low) {
-        std::cout << value << " ";
-    }
-    std::cout << std::endl;
-
-    std::vector<int> firstIntArray_MaxHigh = firstCompressedType[1];
+    /*std::vector<int> firstIntArray_MaxHigh = firstCompressedType[1];
     std::cout << "Values in firstIntArray_MaxHigh: ";
     for (int value : firstIntArray_MaxHigh) {
         std::cout << value << " ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl;*/
+
 
 
     /*const int numberQueryOfIntervals = 20;

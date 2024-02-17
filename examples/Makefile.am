@@ -9,4 +9,4 @@ endif
 bin_PROGRAMS=test
 
 test_SOURCES=test.cc
-test_LDADD=../scidx/.libs/libscidx.a -lm
+test_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd

@@ -303,7 +303,7 @@ AM_CPPFLAGS = -I../scidx/include $(am__append_1)
 AM_FCFLAGS = -I../scidx/include -I../scidx
 @OPENMP_TRUE@AM_LDFLAGS = -fopenmp
 test_SOURCES = test.cc
-test_LDADD = ../scidx/.libs/libscidx.a -lm
+test_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd
 all: all-am
 
 .SUFFIXES:

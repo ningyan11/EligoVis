@@ -244,8 +244,7 @@ src/libscidx_la-scidx.lo: src/scidx.cc \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stack \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/iomanip \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/sstream \
-  include/scidx_block_min_max.h include/scidx_Huffman.h \
-  /usr/local/include/zstd.h \
+  include/scidx_block_min_max.h include/scidx_Huffman.h ../zstd/zstd.h \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stddef.h \
   include/scidx_BytesToolkit.h
 
@@ -745,7 +744,7 @@ include/scidx_block_min_max.h:
 
 include/scidx_Huffman.h:
 
-/usr/local/include/zstd.h:
+../zstd/zstd.h:
 
 /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stddef.h:
 

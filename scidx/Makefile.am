@@ -1,10 +1,11 @@
 
 AUTOMAKE_OPTIONS=foreign
-include_HEADERS=include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_Huffman.h include/scidx_block_min_max.h include/scidx.h
+include_HEADERS=include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_Huffman.h include/scidx_block_min_max.h 
 
 lib_LTLIBRARIES=libscidx.la
 libscidx_la_CXXFLAGS=-I./include -I../zstd/
 libscidx_la_LDFLAGS = -version-info  1:0:0
+libscidx_la_LIDADD=../zstd/.libs/libzstd.a
 if OPENMP
 libscidx_la_CXXFLAGS+=-fopenmp
 libscidx_la_LDFLAGS+=-fopenmp
