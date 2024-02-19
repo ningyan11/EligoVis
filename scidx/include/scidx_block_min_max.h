@@ -25,7 +25,6 @@ std::vector<std::vector<T>> obtainBlockMinMax(std::vector<T> data, std::vector<s
     std::vector<T> block_maxs(total_blocks, -std::numeric_limits<T>::infinity());
 
 
-
     for (size_t p = 0; p < nElem; p++)
     {
         std::vector<size_t> elem_global_id = positionToIndices(p, dataShape);

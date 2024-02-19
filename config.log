@@ -30,8 +30,8 @@ Kernel configured for up to 4 processors.
 Processor type: x86_64h (Intel x86-64h Haswell)
 Processors active: 0 1 2 3
 Primary memory available: 8.00 gigabytes
-Default processor set: 415 tasks, 1963 threads, 4 processors
-Load average: 2.62, Mach factor: 2.08
+Default processor set: 413 tasks, 2011 threads, 4 processors
+Load average: 1.53, Mach factor: 2.48
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
@@ -171,12 +171,12 @@ conftest.cpp:186:9: warning: unused variable 'c' [-Wunused-variable]
 conftest.cpp:196:19: warning: unused variable 'utf32' [-Wunused-variable]
   char32_t const *utf32 = U"UTF-32 string \u2500";
                   ^
-conftest.cpp:195:19: warning: unused variable 'utf16' [-Wunused-variable]
-  char16_t const *utf16 = u"UTF-8 string \u2500";
-                  ^
 conftest.cpp:194:15: warning: unused variable 'utf8' [-Wunused-variable]
   char const *utf8 = u8"UTF-8 string \u2500";
               ^
+conftest.cpp:195:19: warning: unused variable 'utf16' [-Wunused-variable]
+  char16_t const *utf16 = u"UTF-8 string \u2500";
+                  ^
 conftest.cpp:96:9: warning: private field 'i' is not used [-Wunused-private-field]
     int i;
         ^

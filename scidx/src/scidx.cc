@@ -3,6 +3,7 @@
  * Authors: Ning Yan, Lipeng Wan, Sheng Di
  * */
 
+#include <scidx.h>
 #include <cmath>
 #include <cstdlib>
 #include <scidx_rb_interval_tree.h>

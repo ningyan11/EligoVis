@@ -888,7 +888,6 @@ void decode_withTree(HuffmanTree* huffmanTree, unsigned char *s, size_t targetLe
 {
 	size_t encodeStartIndex;
 	size_t nodeCount = bytesToInt_bigEndian(s);
-	std::cout << "Node count: " << nodeCount << std::endl;
 	node root = reconstruct_HuffTree_from_bytes_anyStates(huffmanTree,s+8, nodeCount);
 
 	//sdi: Debug

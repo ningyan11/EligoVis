@@ -241,7 +241,8 @@ src/libscidx_la-scidx_rw.lo: src/scidx_rw.cc \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stack \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/iomanip \
   /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/sstream \
-  include/scidx_rw.h include/scidx_BytesToolkit.h
+  include/scidx_rb_interval_tree.h include/scidx_rw.h \
+  include/scidx_BytesToolkit.h
 
 include/scidx_avl_interval_tree.h:
 
@@ -728,6 +729,8 @@ include/scidx_defines.h:
 /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/iomanip:
 
 /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/sstream:
+
+include/scidx_rb_interval_tree.h:
 
 include/scidx_rw.h:
 

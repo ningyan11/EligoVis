@@ -10,6 +10,7 @@
 #include <random>
 
 #include <scidx.h>
+
 #include <scidx_Huffman.h>
 #include <scidx_rb_interval_tree.h>
 #include <scidx_avl_interval_tree.h>
@@ -35,6 +36,7 @@ ScidxrbInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
 void printIntervalTreeArray(std::vector<int>& arr);
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
 void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename);
+void compressTree(std::vector<std::vector<ScidxrbNode<float>*>> singleSubTree, float error_bound);
 
 
 
@@ -272,6 +274,7 @@ int main(int argc, char *argv[]) {
     std::vector<std::vector<ScidxrbNode<float>*>> firstrbSubTree = allSubTrees[0];
 
     compressTree(firstrbSubTree, error_bound);
+
 
     /*std::vector<int> firstIntArray_MaxHigh = firstCompressedType[1];
     std::cout << "Values in firstIntArray_MaxHigh: ";

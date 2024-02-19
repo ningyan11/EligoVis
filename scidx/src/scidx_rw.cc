@@ -8,6 +8,7 @@
 
 
 #include <scidx_avl_interval_tree.h>
+#include <scidx_rb_interval_tree.h>
 #include "scidx_rw.h"
 #include <scidx_defines.h>
 #include "scidx_BytesToolkit.h"
