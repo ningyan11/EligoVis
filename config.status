@@ -545,8 +545,8 @@ AMDEP_TRUE="" MAKE="make"
 sed_quote_subst='s/\(["`$\\]\)/\\\1/g'
 double_quote_subst='s/\(["`\\]\)/\\\1/g'
 delay_variable_subst='s/\\\\\\\\\\\$/\\\\\\$/g'
-macro_version='2.4.6'
-macro_revision='2.4.6'
+macro_version='2.4.7'
+macro_revision='2.4.7'
 enable_shared='no'
 enable_static='yes'
 pic_mode='default'
@@ -556,20 +556,20 @@ SHELL='/bin/sh'
 ECHO='printf %s\n'
 PATH_SEPARATOR=':'
 host_alias=''
-host='x86_64-apple-darwin19.3.0'
-host_os='darwin19.3.0'
+host='arm-apple-darwin23.1.0'
+host_os='darwin23.1.0'
 build_alias=''
-build='x86_64-apple-darwin19.3.0'
-build_os='darwin19.3.0'
+build='arm-apple-darwin23.1.0'
+build_os='darwin23.1.0'
 SED='/usr/bin/sed'
 Xsed='/usr/bin/sed -e 1s/^X//'
 GREP='/usr/bin/grep'
 EGREP='/usr/bin/grep -E'
 FGREP='/usr/bin/grep -F'
-LD='/Users/yanning/anaconda3/bin/ld'
+LD='/usr/bin/ld'
 NM='/usr/bin/nm -B'
 LN_S='ln -s'
-max_cmd_len='196608'
+max_cmd_len='786432'
 ac_objext='o'
 exeext=''
 lt_unset='unset'
@@ -579,6 +579,7 @@ lt_cv_to_host_file_cmd='func_convert_file_noop'
 lt_cv_to_tool_file_cmd='func_convert_file_noop'
 reload_flag=' -r'
 reload_cmds='$LD$reload_flag -o $output$reload_objs'
+FILECMD='file'
 OBJDUMP='objdump'
 deplibs_check_method='pass_all'
 file_magic_cmd='$MAGIC_CMD'
@@ -587,7 +588,8 @@ want_nocaseglob='no'
 DLLTOOL='false'
 sharedlib_from_linklib_cmd='printf %s\n'
 AR='ar'
-AR_FLAGS='cru'
+lt_ar_flags='cr'
+AR_FLAGS='cr'
 archiver_list_spec=''
 STRIP='strip'
 RANLIB='ranlib'
@@ -597,13 +599,13 @@ old_archive_cmds='$AR $AR_FLAGS $oldlib$oldobjs~$RANLIB $tool_oldlib'
 lock_old_archive_extraction='yes'
 CC='gcc'
 CFLAGS='-O3 -std=c99 -Wall'
-compiler='gfortran'
+compiler='g++'
 GCC=''
 lt_cv_sys_global_symbol_pipe=''
 lt_cv_sys_global_symbol_to_cdecl=''
 lt_cv_sys_global_symbol_to_import=''
-lt_cv_sys_global_symbol_to_c_name_address='sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[BCDEGRST][BCDEGRST]* .* \(.*\)$/  {"\1", (void *) \&\1},/p'\'''
-lt_cv_sys_global_symbol_to_c_name_address_lib_prefix='sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[BCDEGRST][BCDEGRST]* .* \(lib.*\)$/  {"\1", (void *) \&\1},/p'\'' -e '\''s/^[BCDEGRST][BCDEGRST]* .* \(.*\)$/  {"lib\1", (void *) \&\1},/p'\'''
+lt_cv_sys_global_symbol_to_c_name_address='/usr/bin/sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(.*\)$/  {"\1", (void *) \&\1},/p'\'''
+lt_cv_sys_global_symbol_to_c_name_address_lib_prefix='/usr/bin/sed -n -e '\''s/^: \(.*\) .*$/  {"\1", (void *) 0},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(lib.*\)$/  {"\1", (void *) \&\1},/p'\'' -e '\''s/^[ABCDGIRSTW][ABCDGIRSTW]* .* \(.*\)$/  {"lib\1", (void *) \&\1},/p'\'''
 lt_cv_nm_interface='BSD nm'
 nm_file_list_spec='@'
 lt_sysroot=''
@@ -686,8 +688,8 @@ postdep_objects=''
 predeps=''
 postdeps=''
 compiler_lib_search_path=''
-LD_CXX='/Users/yanning/anaconda3/bin/ld'
-LD_FC='/Users/yanning/anaconda3/bin/ld'
+LD_CXX='/usr/bin/ld'
+LD_FC=''
 reload_flag_CXX=' -r'
 reload_flag_FC=' -r'
 reload_cmds_CXX='$LD$reload_flag -o $output$reload_objs'
@@ -695,19 +697,19 @@ reload_cmds_FC='$LD$reload_flag -o $output$reload_objs'
 old_archive_cmds_CXX='$AR $AR_FLAGS $oldlib$oldobjs~$RANLIB $tool_oldlib'
 old_archive_cmds_FC='$AR $AR_FLAGS $oldlib$oldobjs~$RANLIB $tool_oldlib'
 compiler_CXX='g++'
-compiler_FC='gfortran'
+compiler_FC=''
 GCC_CXX='yes'
-GCC_FC='yes'
+GCC_FC=''
 lt_prog_compiler_no_builtin_flag_CXX=' -fno-builtin'
 lt_prog_compiler_no_builtin_flag_FC=''
 lt_prog_compiler_pic_CXX=' -fno-common -DPIC'
-lt_prog_compiler_pic_FC=' -fno-common'
+lt_prog_compiler_pic_FC=''
 lt_prog_compiler_wl_CXX='-Wl,'
-lt_prog_compiler_wl_FC='-Wl,'
+lt_prog_compiler_wl_FC=''
 lt_prog_compiler_static_CXX=''
 lt_prog_compiler_static_FC=''
 lt_cv_prog_compiler_c_o_CXX='yes'
-lt_cv_prog_compiler_c_o_FC='yes'
+lt_cv_prog_compiler_c_o_FC=''
 archive_cmds_need_lc_CXX='no'
 archive_cmds_need_lc_FC='no'
 enable_shared_with_static_runtimes_CXX='no'
@@ -715,25 +717,25 @@ enable_shared_with_static_runtimes_FC='no'
 export_dynamic_flag_spec_CXX=''
 export_dynamic_flag_spec_FC=''
 whole_archive_flag_spec_CXX='`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience $wl-force_load,$conv\"; done; func_echo_all \"$new_convenience\"`'
-whole_archive_flag_spec_FC='`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience $wl-force_load,$conv\"; done; func_echo_all \"$new_convenience\"`'
+whole_archive_flag_spec_FC=''
 compiler_needs_object_CXX='no'
-compiler_needs_object_FC='yes'
+compiler_needs_object_FC=''
 old_archive_from_new_cmds_CXX=''
 old_archive_from_new_cmds_FC=''
 old_archive_from_expsyms_cmds_CXX=''
 old_archive_from_expsyms_cmds_FC=''
-archive_cmds_CXX='$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring $single_module'
-archive_cmds_FC='$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring $single_module'
-archive_expsym_cmds_CXX='sed '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring $single_module~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
-archive_expsym_cmds_FC='sed '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring $single_module~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
+archive_cmds_CXX='$CC -r -keep_private_externs -nostdlib -o $lib-master.o $libobjs~$CC -dynamiclib $allow_undefined_flag -o $lib $lib-master.o $deplibs $compiler_flags -install_name $rpath/$soname $verstring'
+archive_cmds_FC=''
+archive_expsym_cmds_CXX='/usr/bin/sed '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC -r -keep_private_externs -nostdlib -o $lib-master.o $libobjs~$CC -dynamiclib $allow_undefined_flag -o $lib $lib-master.o $deplibs $compiler_flags -install_name $rpath/$soname $verstring~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
+archive_expsym_cmds_FC=''
 module_cmds_CXX='$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs $compiler_flags'
-module_cmds_FC='$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs $compiler_flags'
-module_expsym_cmds_CXX='sed -e '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs $compiler_flags~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
-module_expsym_cmds_FC='sed -e '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs $compiler_flags~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
+module_cmds_FC=''
+module_expsym_cmds_CXX='/usr/bin/sed -e '\''s|^|_|'\'' < $export_symbols > $output_objdir/$libname-symbols.expsym~$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs $compiler_flags~$NMEDIT -s $output_objdir/$libname-symbols.expsym $lib'
+module_expsym_cmds_FC=''
 with_gnu_ld_CXX='no'
-with_gnu_ld_FC='no'
+with_gnu_ld_FC=''
 allow_undefined_flag_CXX='$wl-undefined ${wl}dynamic_lookup'
-allow_undefined_flag_FC='$wl-undefined ${wl}dynamic_lookup'
+allow_undefined_flag_FC=''
 no_undefined_flag_CXX=''
 no_undefined_flag_FC=''
 hardcode_libdir_flag_spec_CXX=''
@@ -747,19 +749,19 @@ hardcode_direct_absolute_FC='no'
 hardcode_minus_L_CXX='no'
 hardcode_minus_L_FC='no'
 hardcode_shlibpath_var_CXX='unsupported'
-hardcode_shlibpath_var_FC='unsupported'
+hardcode_shlibpath_var_FC=''
 hardcode_automatic_CXX='yes'
-hardcode_automatic_FC='yes'
+hardcode_automatic_FC='no'
 inherit_rpath_CXX='no'
 inherit_rpath_FC='no'
 link_all_deplibs_CXX='yes'
-link_all_deplibs_FC='yes'
+link_all_deplibs_FC='unknown'
 always_export_symbols_CXX='no'
 always_export_symbols_FC='no'
 export_symbols_cmds_CXX='$NM $libobjs $convenience | $global_symbol_pipe | $SED '\''s/.* //'\'' | sort | uniq > $export_symbols'
-export_symbols_cmds_FC='$NM $libobjs $convenience | $global_symbol_pipe | $SED '\''s/.* //'\'' | sort | uniq > $export_symbols'
+export_symbols_cmds_FC=''
 exclude_expsyms_CXX='_GLOBAL_OFFSET_TABLE_|_GLOBAL__F[ID]_.*'
-exclude_expsyms_FC='_GLOBAL_OFFSET_TABLE_|_GLOBAL__F[ID]_.*'
+exclude_expsyms_FC=''
 include_expsyms_CXX=''
 include_expsyms_FC=''
 prelink_cmds_CXX=''
@@ -769,7 +771,7 @@ postlink_cmds_FC=''
 file_list_spec_CXX=''
 file_list_spec_FC=''
 hardcode_action_CXX='immediate'
-hardcode_action_FC='immediate'
+hardcode_action_FC=''
 compiler_lib_search_dirs_CXX=''
 compiler_lib_search_dirs_FC=''
 predep_objects_CXX=''
@@ -796,7 +798,7 @@ _LTECHO_EOF'
 }
 
 # Quote evaled strings.
-for var in SHELL ECHO PATH_SEPARATOR SED GREP EGREP FGREP LD NM LN_S lt_SP2NL lt_NL2SP reload_flag OBJDUMP deplibs_check_method file_magic_cmd file_magic_glob want_nocaseglob DLLTOOL sharedlib_from_linklib_cmd AR AR_FLAGS archiver_list_spec STRIP RANLIB CC CFLAGS compiler lt_cv_sys_global_symbol_pipe lt_cv_sys_global_symbol_to_cdecl lt_cv_sys_global_symbol_to_import lt_cv_sys_global_symbol_to_c_name_address lt_cv_sys_global_symbol_to_c_name_address_lib_prefix lt_cv_nm_interface nm_file_list_spec lt_cv_truncate_bin lt_prog_compiler_no_builtin_flag lt_prog_compiler_pic lt_prog_compiler_wl lt_prog_compiler_static lt_cv_prog_compiler_c_o need_locks MANIFEST_TOOL DSYMUTIL NMEDIT LIPO OTOOL OTOOL64 shrext_cmds export_dynamic_flag_spec whole_archive_flag_spec compiler_needs_object with_gnu_ld allow_undefined_flag no_undefined_flag hardcode_libdir_flag_spec hardcode_libdir_separator exclude_expsyms include_expsyms file_list_spec variables_saved_for_relink libname_spec library_names_spec soname_spec install_override_mode finish_eval old_striplib striplib compiler_lib_search_dirs predep_objects postdep_objects predeps postdeps compiler_lib_search_path LD_CXX LD_FC reload_flag_CXX reload_flag_FC compiler_CXX compiler_FC lt_prog_compiler_no_builtin_flag_CXX lt_prog_compiler_no_builtin_flag_FC lt_prog_compiler_pic_CXX lt_prog_compiler_pic_FC lt_prog_compiler_wl_CXX lt_prog_compiler_wl_FC lt_prog_compiler_static_CXX lt_prog_compiler_static_FC lt_cv_prog_compiler_c_o_CXX lt_cv_prog_compiler_c_o_FC export_dynamic_flag_spec_CXX export_dynamic_flag_spec_FC whole_archive_flag_spec_CXX whole_archive_flag_spec_FC compiler_needs_object_CXX compiler_needs_object_FC with_gnu_ld_CXX with_gnu_ld_FC allow_undefined_flag_CXX allow_undefined_flag_FC no_undefined_flag_CXX no_undefined_flag_FC hardcode_libdir_flag_spec_CXX hardcode_libdir_flag_spec_FC hardcode_libdir_separator_CXX hardcode_libdir_separator_FC exclude_expsyms_CXX exclude_expsyms_FC include_expsyms_CXX include_expsyms_FC file_list_spec_CXX file_list_spec_FC compiler_lib_search_dirs_CXX compiler_lib_search_dirs_FC predep_objects_CXX predep_objects_FC postdep_objects_CXX postdep_objects_FC predeps_CXX predeps_FC postdeps_CXX postdeps_FC compiler_lib_search_path_CXX compiler_lib_search_path_FC; do
+for var in SHELL ECHO PATH_SEPARATOR SED GREP EGREP FGREP LD NM LN_S lt_SP2NL lt_NL2SP reload_flag FILECMD OBJDUMP deplibs_check_method file_magic_cmd file_magic_glob want_nocaseglob DLLTOOL sharedlib_from_linklib_cmd AR archiver_list_spec STRIP RANLIB CC CFLAGS compiler lt_cv_sys_global_symbol_pipe lt_cv_sys_global_symbol_to_cdecl lt_cv_sys_global_symbol_to_import lt_cv_sys_global_symbol_to_c_name_address lt_cv_sys_global_symbol_to_c_name_address_lib_prefix lt_cv_nm_interface nm_file_list_spec lt_cv_truncate_bin lt_prog_compiler_no_builtin_flag lt_prog_compiler_pic lt_prog_compiler_wl lt_prog_compiler_static lt_cv_prog_compiler_c_o need_locks MANIFEST_TOOL DSYMUTIL NMEDIT LIPO OTOOL OTOOL64 shrext_cmds export_dynamic_flag_spec whole_archive_flag_spec compiler_needs_object with_gnu_ld allow_undefined_flag no_undefined_flag hardcode_libdir_flag_spec hardcode_libdir_separator exclude_expsyms include_expsyms file_list_spec variables_saved_for_relink libname_spec library_names_spec soname_spec install_override_mode finish_eval old_striplib striplib compiler_lib_search_dirs predep_objects postdep_objects predeps postdeps compiler_lib_search_path LD_CXX LD_FC reload_flag_CXX reload_flag_FC compiler_CXX compiler_FC lt_prog_compiler_no_builtin_flag_CXX lt_prog_compiler_no_builtin_flag_FC lt_prog_compiler_pic_CXX lt_prog_compiler_pic_FC lt_prog_compiler_wl_CXX lt_prog_compiler_wl_FC lt_prog_compiler_static_CXX lt_prog_compiler_static_FC lt_cv_prog_compiler_c_o_CXX lt_cv_prog_compiler_c_o_FC export_dynamic_flag_spec_CXX export_dynamic_flag_spec_FC whole_archive_flag_spec_CXX whole_archive_flag_spec_FC compiler_needs_object_CXX compiler_needs_object_FC with_gnu_ld_CXX with_gnu_ld_FC allow_undefined_flag_CXX allow_undefined_flag_FC no_undefined_flag_CXX no_undefined_flag_FC hardcode_libdir_flag_spec_CXX hardcode_libdir_flag_spec_FC hardcode_libdir_separator_CXX hardcode_libdir_separator_FC exclude_expsyms_CXX exclude_expsyms_FC include_expsyms_CXX include_expsyms_FC file_list_spec_CXX file_list_spec_FC compiler_lib_search_dirs_CXX compiler_lib_search_dirs_FC predep_objects_CXX predep_objects_FC postdep_objects_CXX postdep_objects_FC predeps_CXX predeps_FC postdeps_CXX postdeps_FC compiler_lib_search_path_CXX compiler_lib_search_path_FC; do
     case `eval \\$ECHO \\""\\$$var"\\"` in
     *[\\\`\"\$]*)
       eval "lt_$var=\\\"\`\$ECHO \"\$$var\" | \$SED \"\$sed_quote_subst\"\`\\\"" ## exclude from sc_prohibit_nested_quotes
@@ -939,30 +941,31 @@ S["DSYMUTIL"]="dsymutil"
 S["MANIFEST_TOOL"]=":"
 S["DLLTOOL"]="false"
 S["OBJDUMP"]="objdump"
+S["FILECMD"]="file"
 S["LN_S"]="ln -s"
 S["NM"]="/usr/bin/nm -B"
 S["ac_ct_DUMPBIN"]=""
 S["DUMPBIN"]=""
-S["LD"]="/Users/yanning/anaconda3/bin/ld"
+S["LD"]="/usr/bin/ld"
 S["FGREP"]="/usr/bin/grep -F"
 S["EGREP"]="/usr/bin/grep -E"
 S["GREP"]="/usr/bin/grep"
 S["SED"]="/usr/bin/sed"
-S["host_os"]="darwin19.3.0"
+S["host_os"]="darwin23.1.0"
 S["host_vendor"]="apple"
-S["host_cpu"]="x86_64"
-S["host"]="x86_64-apple-darwin19.3.0"
-S["build_os"]="darwin19.3.0"
+S["host_cpu"]="arm"
+S["host"]="arm-apple-darwin23.1.0"
+S["build_os"]="darwin23.1.0"
 S["build_vendor"]="apple"
-S["build_cpu"]="x86_64"
-S["build"]="x86_64-apple-darwin19.3.0"
+S["build_cpu"]="arm"
+S["build"]="arm-apple-darwin23.1.0"
 S["LIBTOOL"]="$(SHELL) $(top_builddir)/libtool"
 S["ac_ct_AR"]="ar"
 S["AR"]="ar"
 S["RANLIB"]="ranlib"
-S["ac_ct_FC"]="gfortran"
-S["FCFLAGS"]="-g -O2"
-S["FC"]="gfortran"
+S["ac_ct_FC"]=""
+S["FCFLAGS"]=""
+S["FC"]=""
 S["am__fastdepCC_FALSE"]="#"
 S["am__fastdepCC_TRUE"]=""
 S["CCDEPMODE"]="depmode=gcc3"
@@ -1664,6 +1667,9 @@ to_host_file_cmd=$lt_cv_to_host_file_cmd
 # convert \$build files to toolchain format.
 to_tool_file_cmd=$lt_cv_to_tool_file_cmd
 
+# A file(cmd) program that detects file types.
+FILECMD=$lt_FILECMD
+
 # An object symbol dumper.
 OBJDUMP=$lt_OBJDUMP
 
@@ -1688,8 +1694,11 @@ sharedlib_from_linklib_cmd=$lt_sharedlib_from_linklib_cmd
 # The archiver.
 AR=$lt_AR
 
+# Flags to create an archive (by configure).
+lt_ar_flags=$lt_ar_flags
+
 # Flags to create an archive.
-AR_FLAGS=$lt_AR_FLAGS
+AR_FLAGS=\${ARFLAGS-"\$lt_ar_flags"}
 
 # How to feed a file listing to the archiver.
 archiver_list_spec=$lt_archiver_list_spec
@@ -2079,7 +2088,7 @@ ltmain=$ac_aux_dir/ltmain.sh
   # if finds mixed CR/LF and LF-only lines.  Since sed operates in
   # text mode, it properly converts lines to CR/LF.  This bash problem
   # is reportedly fixed, but why not run on old versions too?
-  sed '$q' "$ltmain" >> "$cfgfile" \
+  $SED '$q' "$ltmain" >> "$cfgfile" \
      || (rm -f "$cfgfile"; exit 1)
 
    mv -f "$cfgfile" "$ofile" ||

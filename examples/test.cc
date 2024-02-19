@@ -14,7 +14,6 @@
 #include <scidx_Huffman.h>
 #include <scidx_rb_interval_tree.h>
 #include <scidx_avl_interval_tree.h>
-#include <zstd.h>
 
 // Random number generator
 std::random_device rd;
@@ -228,7 +227,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    float error_bound = 1E3;
+    float error_bound = 1E4;
     std::vector<int> mergedCompressedTypesLow;
 
     /* for (size_t i = 0; i < allSubTrees.size(); i++)

@@ -1,11 +1,11 @@
 ./deprecated/libzstd_la-zbuff_common.lo: deprecated/zbuff_common.c \
   common/error_private.h \
-  /Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include/stddef.h \
   common/zstd_errors.h deprecated/zbuff.h zstd.h
 
 common/error_private.h:
 
-/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include/stddef.h:
+/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include/stddef.h:
 
 common/zstd_errors.h:
 

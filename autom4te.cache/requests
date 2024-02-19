@@ -7,38 +7,38 @@
                       '0',
                       1,
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf'
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf'
                       ],
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/internal/ac-config-macro-dirs.m4',
-                        '/usr/local/share/aclocal/libtool.m4',
-                        '/usr/local/share/aclocal/ltargz.m4',
-                        '/usr/local/share/aclocal/ltdl.m4',
-                        '/usr/local/share/aclocal/ltoptions.m4',
-                        '/usr/local/share/aclocal/ltsugar.m4',
-                        '/usr/local/share/aclocal/ltversion.m4',
-                        '/usr/local/share/aclocal/lt~obsolete.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/amversion.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/ar-lib.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/auxdir.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/cond.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/depend.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/depout.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/init.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/install-sh.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/lead-dot.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/maintainer.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/make.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/missing.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/options.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/prog-cc-c-o.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/runlog.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/sanity.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/silent.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/strip.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/substnot.m4',
-                        '/usr/local/Cellar/automake/1.16.5/share/aclocal-1.16/tar.m4',
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/internal/ac-config-macro-dirs.m4',
+                        '/opt/homebrew/share/aclocal/libtool.m4',
+                        '/opt/homebrew/share/aclocal/ltargz.m4',
+                        '/opt/homebrew/share/aclocal/ltdl.m4',
+                        '/opt/homebrew/share/aclocal/ltoptions.m4',
+                        '/opt/homebrew/share/aclocal/ltsugar.m4',
+                        '/opt/homebrew/share/aclocal/ltversion.m4',
+                        '/opt/homebrew/share/aclocal/lt~obsolete.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/amversion.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/ar-lib.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/auxdir.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/cond.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/depend.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/depout.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/init.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/install-sh.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/lead-dot.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/maintainer.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/make.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/missing.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/options.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/prog-cc-c-o.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/runlog.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/sanity.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/silent.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/strip.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/substnot.m4',
+                        '/opt/homebrew/Cellar/automake/1.16.5/share/aclocal-1.16/tar.m4',
                         'configure.ac'
                       ],
                       {
@@ -230,12 +230,12 @@
                       '1',
                       1,
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf'
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf'
                       ],
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
                         'aclocal.m4',
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf/autoconf/trailer.m4',
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf/autoconf/trailer.m4',
                         'configure.ac'
                       ],
                       {
@@ -308,10 +308,10 @@
                       '2',
                       1,
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf'
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf'
                       ],
                       [
-                        '/usr/local/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
+                        '/opt/homebrew/Cellar/autoconf/2.72/share/autoconf/autoconf/autoconf.m4f',
                         'aclocal.m4',
                         'configure.ac'
                       ],

@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS=foreign
-AM_CPPFLAGS = -I../scidx/include
-AM_FCFLAGS = -I../scidx/include -I../scidx
+AM_CPPFLAGS = -I../scidx/include -I../../zstd/
+AM_FCFLAGS = -I../scidx/include -I../scidx/
 if OPENMP
 AM_CPPFLAGS+=-fopenmp
 AM_LDFLAGS=-fopenmp
