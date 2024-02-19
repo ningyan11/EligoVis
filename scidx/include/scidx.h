@@ -8,11 +8,7 @@
 #include <scidx_rb_interval_tree.h>
 #include <scidx_rw.h>
 #include <scidx_block_min_max.h>
-
-std::vector<std::vector<int>> compress_index(std::vector<std::vector<ScidxrbNode<float>*>> subTreeNodesInLevels, float error_bound);
-
-std::vector<int> compress_data_layered(std::vector<std::vector<ScidxrbNode<float>*>> subTreeNodesInLevels, float error_bound);
-
+#include <zstd.h>
 
 #ifndef _SCIDX_H
 #define _SCIDX_H
@@ -27,6 +23,7 @@ std::vector<int> compress_data_layered(std::vector<std::vector<ScidxrbNode<float
 extern "C" {
 #endif
 
+void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
 
 #ifdef __cplusplus
 }

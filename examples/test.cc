@@ -35,7 +35,7 @@ ScidxrbInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
 void printIntervalTreeArray(std::vector<int>& arr);
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
 void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename);
-void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
+
 
 
 int main(int argc, char *argv[]) {

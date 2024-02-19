@@ -248,9 +248,10 @@ test.o: test.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uuid_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/gethostuuid.h \
   ../scidx/include/scidx_rw.h ../scidx/include/scidx_block_min_max.h \
+  /usr/local/include/zstd.h \
+  /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stddef.h \
   ../scidx/include/scidx_Huffman.h \
-  ../scidx/include/scidx_avl_interval_tree.h /usr/local/include/zstd.h \
-  /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stddef.h
+  ../scidx/include/scidx_avl_interval_tree.h
 
 /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/vector:
 
@@ -754,10 +755,10 @@ test.o: test.cc \
 
 ../scidx/include/scidx_block_min_max.h:
 
-../scidx/include/scidx_Huffman.h:
-
-../scidx/include/scidx_avl_interval_tree.h:
-
 /usr/local/include/zstd.h:
 
 /Library/Developer/CommandLineTools/usr/bin/../include/c++/v1/stddef.h:
+
+../scidx/include/scidx_Huffman.h:
+
+../scidx/include/scidx_avl_interval_tree.h:
