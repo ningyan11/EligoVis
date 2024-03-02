@@ -4,5 +4,6 @@
  * */
 
 #include <scidx_rb_interval_tree.h>
+#include <scidx_avl_interval_tree.h>
 #include <scidx_defines.h>
 #include <scidx_block_min_max.h>

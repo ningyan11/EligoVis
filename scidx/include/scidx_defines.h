@@ -101,4 +101,10 @@ extern int scidx_sysEndianType; //*sysEndianType is actually set automatically.
 }
 #endif
 
+template <typename T>
+struct ScidxInterval {
+    T low;
+    T high;
+};
+
 #endif /* ----- #ifndef _SCIDX_DEFINES_H  ----- */

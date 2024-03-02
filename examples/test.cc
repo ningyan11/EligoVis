@@ -121,8 +121,8 @@ int main(int argc, char *argv[]) {
 	
     std::vector<ScidxInterval<float>> intervals;
 
-    float global_min = 0;
-    float global_max = 0;
+    float global_min = std::numeric_limits<float>::max();
+    float global_max = std::numeric_limits<float>::min();
     for (size_t i = 0; i < blockMinMax.size(); i++)
     {
         if (blockMinMax[i][0] < global_min)
@@ -155,22 +155,22 @@ int main(int argc, char *argv[]) {
 
     int levelsToTraverse = 3;
 
-    std::vector<std::vector<std::vector<ScidxNode<float>*>>> allSubTrees;
-    std::vector<std::vector<ScidxNode<float>*>> firstSubTreeNodesInLevels;
+    std::vector<std::vector<std::vector<ScidxRBNode<float>*>>> allSubTrees;
+    std::vector<std::vector<ScidxRBNode<float>*>> firstSubTreeNodesInLevels;
 
     levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels);
     allSubTrees.push_back(firstSubTreeNodesInLevels);
 
-    std::vector<ScidxNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
+    std::vector<ScidxRBNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
 
-    std::vector<ScidxNode<float>*> rootsOfNewSubTrees;
+    std::vector<ScidxRBNode<float>*> rootsOfNewSubTrees;
 
     rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfFirstSubTree.begin(), lastLevelOfFirstSubTree.end());
 
     while (!rootsOfNewSubTrees.empty())
     {
         
-        ScidxNode<float>* node = rootsOfNewSubTrees.front();
+        ScidxRBNode<float>* node = rootsOfNewSubTrees.front();
         rootsOfNewSubTrees.erase(rootsOfNewSubTrees.begin());  
 
         if (node->left == nullptr && node->right == nullptr)
@@ -179,10 +179,10 @@ int main(int argc, char *argv[]) {
         }
         
 
-        std::vector<std::vector<ScidxNode<float>*>> currentSubTreeNodesInLevels;
+        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTreeNodesInLevels;
         levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels);   
         allSubTrees.push_back(currentSubTreeNodesInLevels);
-        std::vector<ScidxNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
+        std::vector<ScidxRBNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
 
         rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
 
@@ -211,7 +211,7 @@ int main(int argc, char *argv[]) {
     {
         ScidxInterval<float> queryInterval = generateRandomInterval(maxLow, maxHigh);
         std::cout << "query interval: [" << queryInterval.low << ", " << queryInterval.high << "]" << std::endl;
-        std::vector<ScidxNode<float>*> result = rbIntervalTree.query(queryInterval);
+        std::vector<ScidxRBNode<float>*> result = rbIntervalTree.query(queryInterval);
         std::cout << "overlapped intervals: " << std::endl;
         for (size_t j = 0; j < result.size(); j++)
         {
@@ -220,6 +220,16 @@ int main(int argc, char *argv[]) {
         
     }
     
-    
+
+    ScidxAVLIntervalTree<float> avlIntervalTree;
+
+    for (size_t i = 0; i < intervals.size(); i++)
+    {
+        //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
+        avlIntervalTree.insertNode(i, intervals[i]);
+    }
+    std::cout << "AVL Interval Tree after insertions:" << std::endl;
+    avlIntervalTree.display();
+
     return 0;
 }
