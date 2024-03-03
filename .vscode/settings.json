@@ -82,6 +82,7 @@
         "ios": "cpp",
         "locale": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "__verbose_abort": "cpp"
     }
 }

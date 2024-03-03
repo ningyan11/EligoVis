@@ -860,7 +860,7 @@ test.o: test.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/seed_seq.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/student_t_distribution.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/weibull_distribution.h \
-  ../scidx/include/scidx.h ../scidx/include/scidx_rb_interval_tree.h \
+  ../scidx/include/scidx_block_min_max.h \
   ../scidx/include/scidx_defines.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/time.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_timeval64.h \
@@ -871,8 +871,8 @@ test.o: test.cc \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/select.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_uuid_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/gethostuuid.h \
-  ../scidx/include/scidx_rw.h ../scidx/include/scidx_block_min_max.h \
-  ../scidx/include/scidx_Huffman.h \
+  ../scidx/include/scidx.h ../scidx/include/scidx_rb_interval_tree.h \
+  ../scidx/include/scidx_rw.h ../scidx/include/scidx_Huffman.h \
   ../scidx/include/scidx_avl_interval_tree.h
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:
@@ -2597,9 +2597,7 @@ test.o: test.cc \
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/weibull_distribution.h:
 
-../scidx/include/scidx.h:
-
-../scidx/include/scidx_rb_interval_tree.h:
+../scidx/include/scidx_block_min_max.h:
 
 ../scidx/include/scidx_defines.h:
 
@@ -2621,9 +2619,11 @@ test.o: test.cc \
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/gethostuuid.h:
 
-../scidx/include/scidx_rw.h:
+../scidx/include/scidx.h:
 
-../scidx/include/scidx_block_min_max.h:
+../scidx/include/scidx_rb_interval_tree.h:
+
+../scidx/include/scidx_rw.h:
 
 ../scidx/include/scidx_Huffman.h:
 

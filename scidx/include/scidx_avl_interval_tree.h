@@ -43,8 +43,6 @@ public:
     void insert(const ScidxavlInterval<T>&, const size_t&);
     void display();
     std::vector<ScidxavlNode<T>*> query(const ScidxavlInterval<T>&);
-    
-    //void levelOrderTraversal(std::vector<std::vector<ScidxavlNode<T>*>>& result, int levelsToTraverse);
 
 };
 
@@ -62,15 +60,21 @@ void ScidxAVLIntervalTree<T>::display() {
     std::cout << std::endl;
 }
 
-
 template <typename T>
 void ScidxAVLIntervalTree<T>::updateNode(ScidxavlNode<T>* node) {
     if (node != nullptr) {
         node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
         node->max_high = std::max(node->interval.high, std::max(node->left ? node->left->max_high : node->interval.high,
                                                                node->right ? node->right->max_high : node->interval.high));
+
+        // 添加更新父节点的 max_high
+        if (node->parent != nullptr) {
+            updateNode(node->parent);
+        }
     }
 }
+
+
 
 template <typename T>
 std::vector<ScidxavlNode<T>*> ScidxAVLIntervalTree<T>::query(const ScidxavlInterval<T>& queryInterval) {
@@ -138,30 +142,35 @@ void ScidxAVLIntervalTree<T>::rotateRight(ScidxavlNode<T>*& node) {
 
 template <typename T>
 void ScidxAVLIntervalTree<T>::fixInsertion(ScidxavlNode<T>*& node) {
-    while (node != nullptr && node != root) {
+    while (node != nullptr && node->parent != nullptr) {
         updateNode(node);
         int balanceFactor = getHeight(node->left) - getHeight(node->right);
 
         if (balanceFactor > 1) {
-            if (getHeight(node->left->right) > getHeight(node->left->left)) {
+            if (node->left != nullptr && getHeight(node->left->right) > getHeight(node->left->left)) {
                 rotateLeft(node->left);
             }
-            rotateRight(node);
+            rotateRight(node->parent);  // 修正此处的调用
         } else if (balanceFactor < -1) {
-            if (getHeight(node->right->left) > getHeight(node->right->right)) {
+            if (node->right != nullptr && getHeight(node->right->left) > getHeight(node->right->right)) {
                 rotateRight(node->right);
             }
-            rotateLeft(node);
+            rotateLeft(node->parent);  // 修正此处的调用
         }
 
-        // Check if further iterations are needed
-        if (node == root || node == nullptr) {
-            break;
-        }
+        // 更新节点信息
+        updateNode(node);
 
-        node = node->parent;
+        // 输出调试信息
+        std::cout << "Current node: [" << node->interval.low << ", " << node->interval.high << "] at height " << node->height << std::endl;
+
+        // 移动到父节点，添加对 node 是否为 nullptr 的检查
+        if (node != nullptr) {
+            node = node->parent;
+        }
     }
 }
+
 
 
 template <typename T>
@@ -189,8 +198,16 @@ void ScidxAVLIntervalTree<T>::insert(const ScidxavlInterval<T>& interval, const 
         parent->right = newNode;
     }
 
+    // 调用修复插入的函数
     fixInsertion(newNode);
+
+    // 添加调试输出
+    std::cout << "Inserted: [" << newNode->interval.low << ", " << newNode->interval.high << "] at height " << newNode->height << std::endl;
+
+    // 输出整个树的状态
+    // display();
 }
+
 
 template <typename T>
 void displayHelper(ScidxavlNode<T>* root, int space) {
@@ -210,8 +227,6 @@ void displayHelper(ScidxavlNode<T>* root, int space) {
               << " (max_high: " << root->max_high << ")";
     displayHelper(root->left, space);
 }
-
-
 
 template <typename T>
 bool doIntervalsIntersect(const ScidxavlInterval<T>& interval1, const ScidxavlInterval<T>& interval2) {
@@ -236,8 +251,6 @@ void queryHelper(ScidxavlNode<T>* currentNode, const ScidxavlInterval<T>& queryI
         queryHelper(currentNode->right, queryInterval, result);
     }
 }
-
-
 
 template <typename T>
 void levelOrderTraversal(ScidxavlNode<T>* root, int levelsToTraverse, std::vector<std::vector<ScidxavlNode<T>*>>& result) {
@@ -272,6 +285,5 @@ void levelOrderTraversal(ScidxavlNode<T>* root, int levelsToTraverse, std::vecto
         ++currentLevel;
     }
 }
-
 
 #endif /* _SCIDX_AVL_INTERVAL_TREE_H */

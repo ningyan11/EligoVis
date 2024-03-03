@@ -22,6 +22,8 @@ std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxrbNode<floa
 
 std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree);
 
+std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree);
+
 std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
 
 std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeValue, float error_bound);
@@ -49,15 +51,18 @@ std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxrbNode<
 void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound){
     std::vector<float> treeNodeMaxArray = flattenedTreeNodeMax(singleSubTree);
     std::vector<float> treeNodeMaxHighArray = flattenedTreeNodeMaxHigh(singleSubTree);
+    std::vector<float> leafNodeMaxHighArray = getLeafNodeMaxHigh(singleSubTree);
+
     size_t bytesOfMax = treeNodeMaxArray.size() * sizeof(float);
     std::cout << "treeNodeMax occupies " << bytesOfMax << " bytes before" << std::endl;
 
 
     std::vector<int> treeNodeMaxType = computeArrayType(treeNodeMaxArray, error_bound);
     std::vector<int> treeNodeMaxHighType = computeArrayType(treeNodeMaxHighArray, error_bound);
+    std::vector<int> leafNodeMaxHighType = computeArrayType(leafNodeMaxHighArray, error_bound);
     std::vector<int> treeNodeMinType = preQuantiSingleTreeMin(singleSubTree, error_bound);
 
-    std::cout << "treeNodeMaxType: ";
+/*     std::cout << "treeNodeMaxType: ";
     for (const auto& element : treeNodeMaxType) {
         std::cout << element << " ";
     }
@@ -73,32 +78,36 @@ void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, 
     for (const auto& element : treeNodeMinType) {
         std::cout << element << " ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl; */
 
     int stateNum = 2 * 16384;
     HuffmanTree *huffmanTreeMax = createHuffmanTree(stateNum);
     HuffmanTree *huffmanTreeMaxHigh = createHuffmanTree(stateNum);
+    HuffmanTree *huffmanTreeLeafMaxHigh = createHuffmanTree(stateNum);
     HuffmanTree *huffmanTreeMin = createHuffmanTree(stateNum);
 
-    unsigned char *huffmanOutMax, *huffmanOutMaxHigh, *huffmanOutMin = nullptr;
-    size_t huffmanOutMaxSize, huffmanOutMaxHighSize, huffmanOutMinSize = 0;
+    unsigned char *huffmanOutMax, *huffmanOutMaxHigh, *huffmanOutLeafMaxHigh, *huffmanOutMin = nullptr;
+    size_t huffmanOutMaxSize, huffmanOutMaxHighSize, huffmanOutLeafMaxHighSize, huffmanOutMinSize = 0;
 
     // 根据所有数据构建的全Huffmantree
     //TODO:是根据每种数据构建自己的Huffmantree,还是全部数据构建成一个
     //TODO:type替换成全部的总type
     init_and_serialize_Huffmantree(huffmanTreeMax, treeNodeMaxType.data(), treeNodeMaxType.size(), &huffmanOutMax, &huffmanOutMaxSize);
     init_and_serialize_Huffmantree(huffmanTreeMaxHigh, treeNodeMaxHighType.data(), treeNodeMaxHighType.size(), &huffmanOutMaxHigh, &huffmanOutMaxHighSize);
+    init_and_serialize_Huffmantree(huffmanTreeLeafMaxHigh, leafNodeMaxHighType.data(), leafNodeMaxHighType.size(), &huffmanOutLeafMaxHigh, &huffmanOutLeafMaxHighSize);
     init_and_serialize_Huffmantree(huffmanTreeMin, treeNodeMinType.data(), treeNodeMinType.size(), &huffmanOutMin, &huffmanOutMinSize);
 
     std::vector<unsigned char> compressedMax = singleHuffmanEncodeZstd(treeNodeMaxType, huffmanTreeMax);
     std::vector<unsigned char> compressedMaxHigh = singleHuffmanEncodeZstd(treeNodeMaxHighType, huffmanTreeMaxHigh);
+    std::vector<unsigned char> compressedLeafMaxHigh = singleHuffmanEncodeZstd(leafNodeMaxHighType, huffmanTreeLeafMaxHigh);
     std::vector<unsigned char> compressedMin = singleHuffmanEncodeZstd(treeNodeMinType, huffmanTreeMin);
 
     std::vector<int> decompressedTypeMax = singleHuffmanDecodeZstd(compressedMax, treeNodeMaxType, huffmanOutMax);
     std::vector<int> decompressedTypeMaxHigh =singleHuffmanDecodeZstd(compressedMaxHigh, treeNodeMaxHighType, huffmanOutMaxHigh);
+    std::vector<int> decompressedTypeLeafMaxHigh =singleHuffmanDecodeZstd(compressedLeafMaxHigh, leafNodeMaxHighType, huffmanOutLeafMaxHigh);
     std::vector<int> decompressedTypeMin =singleHuffmanDecodeZstd(compressedMin, treeNodeMinType, huffmanOutMin);
 
-     std::cout << "decompressedTypeMax: ";
+/*      std::cout << "decompressedTypeMax: ";
     for (const auto& element : decompressedTypeMax) {
         std::cout << element << " ";
     }
@@ -114,7 +123,7 @@ void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, 
     for (const auto& element : decompressedTypeMin) {
         std::cout << element << " ";
     }
-    std::cout << std::endl;
+    std::cout << std::endl; */
 }
 
 // 对单个子树的max,打平为层级顺序
@@ -147,6 +156,21 @@ std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxrbNode<
     }
 
     return flattenedNodeMaxHigh;
+}
+
+// 获取单个子树的叶子节点的max_high
+std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree){
+
+std::vector<float> leafNodeMaxHigh;
+
+for (const auto& levelNodes : singleSubTree) {
+    for (ScidxrbNode<float>* node : levelNodes) {
+        if (node->left == nullptr && node->right == nullptr) {
+            leafNodeMaxHigh.push_back(node->max_high);
+        }
+    }
+}
+return leafNodeMaxHigh;
 }
 
 // 对单个子树的min,进行prediction+quantization,返回pre+quanti后的值

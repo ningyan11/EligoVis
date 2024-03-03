@@ -9,6 +9,8 @@
 
 #include <random>
 
+#include <scidx_block_min_max.h>
+
 #include <scidx.h>
 
 #include <scidx_Huffman.h>
@@ -128,32 +130,44 @@ int main(int argc, char *argv[]) {
     std::vector<float> data{dataBuffer, dataBuffer+nElem};
 
     std::vector<std::vector<float>> blockMinMax = obtainBlockMinMax(data, dataShape, blockShape);
+
+    std::vector<std::vector<float>> sortedBlockMinMax = sortResultsByMax(blockMinMax);
     
-    saveToFile(blockMinMax, "outputOfPoints.txt");
+    //saveToFile(blockMinMax, "outputOfPoints.txt");
 	
     std::vector<ScidxrbInterval<float>> intervals;
 
+    std::vector<ScidxavlInterval<float>> avlIntervals;
+
     float global_min = 0;
     float global_max = 0;
-    for (size_t i = 0; i < blockMinMax.size(); i++)
+    for (size_t i = 0; i < sortedBlockMinMax.size(); i++)
     {
-        if (blockMinMax[i][0] < global_min)
+        if (sortedBlockMinMax[i][0] < global_min)
         {
-            global_min = blockMinMax[i][0];
+            global_min = sortedBlockMinMax[i][0];
         }
-        if (blockMinMax[i][1] > global_max)
+        if (sortedBlockMinMax[i][1] > global_max)
         {
-            global_max = blockMinMax[i][1];
+            global_max = sortedBlockMinMax[i][1];
         }        
         
         ScidxrbInterval<float> interval;
-        interval.low = blockMinMax[i][0];
-        interval.high = blockMinMax[i][1];
+        ScidxavlInterval<float> avlInterval;
+
+        interval.low = sortedBlockMinMax[i][0];
+        interval.high = sortedBlockMinMax[i][1];
+
+        avlInterval.low = sortedBlockMinMax[i][0];
+        avlInterval.high = sortedBlockMinMax[i][1];
+
         intervals.push_back(interval);
+        avlIntervals.push_back(avlInterval);
     }
     
 
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
+    ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
     {
@@ -164,6 +178,8 @@ int main(int argc, char *argv[]) {
 
     std::cout << "RB Interval Tree after insertions:" << std::endl;
     rbIntervalTree.display();
+
+   
 
 
     //put the intervalTree into the int array
@@ -176,7 +192,7 @@ int main(int argc, char *argv[]) {
     size_t byteLength = convertIntArray2ByteArray_fast_1b(resultArray, byteArray);
     std::cout << "Byte Array Length: " << byteLength << std::endl;
 
-    int levelsToTraverse = 20;
+    int levelsToTraverse = 40;
 
     std::vector<std::vector<std::vector<ScidxrbNode<float>*>>> allSubTrees;
     std::vector<std::vector<ScidxrbNode<float>*>> firstSubTreeNodesInLevels;

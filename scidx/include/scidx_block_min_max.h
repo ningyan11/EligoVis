@@ -3,6 +3,7 @@
 
 #include <scidx_defines.h>
 #include <limits>
+#include <algorithm>
 
 
 std::vector<size_t> positionToIndices(size_t position, const std::vector<size_t>& shape);
@@ -57,6 +58,17 @@ std::vector<std::vector<T>> obtainBlockMinMax(std::vector<T> data, std::vector<s
     
     return results;
 }
+
+template <typename T>
+std::vector<std::vector<T>> sortResultsByMax(std::vector<std::vector<T>>& results) {
+    std::sort(results.begin(), results.end(), [](const std::vector<T>& a, const std::vector<T>& b) {
+        return a[1] < b[1];  // 按照 max 的大小进行升序排序
+    });
+
+    return results;
+}
+
+
 
 
 #endif
