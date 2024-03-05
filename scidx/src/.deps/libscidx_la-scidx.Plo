@@ -822,8 +822,9 @@ src/libscidx_la-scidx.lo: src/scidx.cc include/scidx.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__filesystem/recursive_directory_iterator.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__filesystem/u8path.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
-  include/scidx_rw.h include/scidx_block_min_max.h \
-  include/scidx_Huffman.h ../zstd/zstd.h include/scidx_BytesToolkit.h
+  include/scidx_avl_interval_tree.h include/scidx_rw.h \
+  include/scidx_block_min_max.h include/scidx_Huffman.h ../zstd/zstd.h \
+  include/scidx_BytesToolkit.h
 
 include/scidx.h:
 
@@ -2474,6 +2475,8 @@ include/scidx_defines.h:
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__filesystem/u8path.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream:
+
+include/scidx_avl_interval_tree.h:
 
 include/scidx_rw.h:
 

@@ -22,9 +22,8 @@ std::vector<std::vector<T>> obtainBlockMinMax(std::vector<T> data, std::vector<s
         blockCountOnEachDim.push_back(dataShape[i]/blockShape[i]);
         total_blocks *= dataShape[i]/blockShape[i];
     }
-    std::vector<T> block_mins(total_blocks, std::numeric_limits<T>::infinity());
-    std::vector<T> block_maxs(total_blocks, -std::numeric_limits<T>::infinity());
-
+    std::vector<T> block_mins(total_blocks, std::numeric_limits<T>::max());
+    std::vector<T> block_maxs(total_blocks, std::numeric_limits<T>::min());
 
     for (size_t p = 0; p < nElem; p++)
     {

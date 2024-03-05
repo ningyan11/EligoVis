@@ -23,21 +23,22 @@ std::mt19937 gen(rd());
 
 // Function to generate a random interval
 template <typename T>
-ScidxrbInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
+ScidxInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
     std::uniform_real_distribution<T> distLow(0, maxLow);
     std::uniform_real_distribution<T> distHigh(distLow(gen), maxHigh);
 
-    ScidxrbInterval<T> rbInterval;
-    rbInterval.low = distLow(gen);
-    rbInterval.high = distHigh(gen);
+    ScidxInterval<T> interval;
+    interval.low = distLow(gen);
+    interval.high = distHigh(gen);
 
-    return rbInterval;
+    return interval;
 }
 
 void printIntervalTreeArray(std::vector<int>& arr);
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
 void saveToFile(const std::vector<std::vector<float>>& data, const std::string& filename);
-void compressTree(std::vector<std::vector<ScidxrbNode<float>*>> singleSubTree, float error_bound);
+void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
+
 
 
 
@@ -131,35 +132,35 @@ int main(int argc, char *argv[]) {
 
     std::vector<std::vector<float>> blockMinMax = obtainBlockMinMax(data, dataShape, blockShape);
 
-    std::vector<std::vector<float>> sortedBlockMinMax = sortResultsByMax(blockMinMax);
+    //std::vector<std::vector<float>> sortedBlockMinMax = sortResultsByMax(blockMinMax);
     
     //saveToFile(blockMinMax, "outputOfPoints.txt");
 	
-    std::vector<ScidxrbInterval<float>> intervals;
+    std::vector<ScidxInterval<float>> intervals;
 
-    std::vector<ScidxavlInterval<float>> avlIntervals;
+    std::vector<ScidxInterval<float>> avlIntervals;
 
-    float global_min = 0;
-    float global_max = 0;
-    for (size_t i = 0; i < sortedBlockMinMax.size(); i++)
+    float global_min = std::numeric_limits<float>::max();
+    float global_max = std::numeric_limits<float>::min();
+    for (size_t i = 0; i < blockMinMax.size(); i++)
     {
-        if (sortedBlockMinMax[i][0] < global_min)
+        if (blockMinMax[i][0] < global_min)
         {
-            global_min = sortedBlockMinMax[i][0];
+            global_min = blockMinMax[i][0];
         }
-        if (sortedBlockMinMax[i][1] > global_max)
+        if (blockMinMax[i][1] > global_max)
         {
-            global_max = sortedBlockMinMax[i][1];
+            global_max = blockMinMax[i][1];
         }        
         
-        ScidxrbInterval<float> interval;
-        ScidxavlInterval<float> avlInterval;
+        ScidxInterval<float> interval;
+        ScidxInterval<float> avlInterval;
 
-        interval.low = sortedBlockMinMax[i][0];
-        interval.high = sortedBlockMinMax[i][1];
+        interval.low = blockMinMax[i][0];
+        interval.high = blockMinMax[i][1];
 
-        avlInterval.low = sortedBlockMinMax[i][0];
-        avlInterval.high = sortedBlockMinMax[i][1];
+        avlInterval.low = blockMinMax[i][0];
+        avlInterval.high = blockMinMax[i][1];
 
         intervals.push_back(interval);
         avlIntervals.push_back(avlInterval);
@@ -167,7 +168,6 @@ int main(int argc, char *argv[]) {
     
 
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
-    ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
     {
@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
 
     //put the intervalTree into the int array
     std::vector<int> resultArray;
-    ScidxrbNode<float>* rbIntervalTreeRoot = rbIntervalTree.getRoot();
+    ScidxRBNode<float>* rbIntervalTreeRoot = rbIntervalTree.getRoot();
     convertTreeToArray(rbIntervalTreeRoot, resultArray);
     printIntervalTreeArray(resultArray);
 
@@ -192,24 +192,30 @@ int main(int argc, char *argv[]) {
     size_t byteLength = convertIntArray2ByteArray_fast_1b(resultArray, byteArray);
     std::cout << "Byte Array Length: " << byteLength << std::endl;
 
-    int levelsToTraverse = 40;
+    int levelsToTraverse = 5;
 
-    std::vector<std::vector<std::vector<ScidxrbNode<float>*>>> allSubTrees;
-    std::vector<std::vector<ScidxrbNode<float>*>> firstSubTreeNodesInLevels;
+    std::vector<std::vector<std::vector<ScidxRBNode<float>*>>> allSubTrees;
+    std::vector<std::vector<ScidxRBNode<float>*>> firstSubTreeNodesInLevels;
+    std::vector<size_t> sizesOfBigMap;
+    std::vector<int> combinedVector;
+    std::vector<int> firstVectorOfMap;
 
-    levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels);
+    levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels, firstVectorOfMap);
     allSubTrees.push_back(firstSubTreeNodesInLevels);
+    sizesOfBigMap.push_back(firstVectorOfMap.size());
+    combinedVector.insert(combinedVector.end(), firstVectorOfMap.begin(), firstVectorOfMap.end());
 
-    std::vector<ScidxrbNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
 
-    std::vector<ScidxrbNode<float>*> rootsOfNewSubTrees;
+    std::vector<ScidxRBNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
+
+    std::vector<ScidxRBNode<float>*> rootsOfNewSubTrees;
 
     rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfFirstSubTree.begin(), lastLevelOfFirstSubTree.end());
 
     while (!rootsOfNewSubTrees.empty())
     {
         
-        ScidxrbNode<float>* node = rootsOfNewSubTrees.front();
+        ScidxRBNode<float>* node = rootsOfNewSubTrees.front();
         rootsOfNewSubTrees.erase(rootsOfNewSubTrees.begin());  
 
         if (node->left == nullptr && node->right == nullptr)
@@ -218,10 +224,16 @@ int main(int argc, char *argv[]) {
         }
         
 
-        std::vector<std::vector<ScidxrbNode<float>*>> currentSubTreeNodesInLevels;
-        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels);   
+        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTreeNodesInLevels;
+        std::vector<int> currentSubTreeVectorOfMap;
+
+        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels, currentSubTreeVectorOfMap);  
+        sizesOfBigMap.push_back(currentSubTreeVectorOfMap.size());
+        combinedVector.insert(combinedVector.end(), currentSubTreeVectorOfMap.begin(), currentSubTreeVectorOfMap.end());
+
+ 
         allSubTrees.push_back(currentSubTreeNodesInLevels);
-        std::vector<ScidxrbNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
+        std::vector<ScidxRBNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
 
         rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
 
@@ -235,7 +247,7 @@ int main(int argc, char *argv[]) {
             std::cout << "    level #" << j << ":" << std::endl;
             for (size_t k = 0; k < allSubTrees[i][j].size(); k++)
             {
-                std::cout << "        " << "[" << allSubTrees[i][j][k]->rbInterval.low << ", " << allSubTrees[i][j][k]->rbInterval.high << "]" << std::endl;
+                std::cout << "        " << "[" << allSubTrees[i][j][k]->interval.low << ", " << allSubTrees[i][j][k]->interval.high << "]" << std::endl;
             }
             
         }
@@ -286,9 +298,13 @@ int main(int argc, char *argv[]) {
     
     */
 
-    std::vector<std::vector<ScidxrbNode<float>*>> firstrbSubTree = allSubTrees[0];
+    std::vector<std::vector<ScidxRBNode<float>*>> firstrbSubTree = allSubTrees[0];
+    size_t startIndex = 0;
+    size_t firstVectorSize = sizesOfBigMap[0];
+    std::vector<int> firstVector(combinedVector.begin() + startIndex, combinedVector.begin() + startIndex + firstVectorSize);
 
-    compressTree(firstrbSubTree, error_bound);
+
+    compressTree(firstrbSubTree, error_bound, firstVector);
 
 
     /*std::vector<int> firstIntArray_MaxHigh = firstCompressedType[1];
@@ -316,6 +332,19 @@ int main(int argc, char *argv[]) {
         }
         
     }*/
+
+
+    ScidxAVLIntervalTree<float> avlIntervalTree;
+
+    std::cout << "begin to insert avl" << std::endl;
+
+    for (size_t i = 0; i < intervals.size(); i++)
+    {
+        //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
+        avlIntervalTree.insertNode(i, intervals[i]);
+    }
+    std::cout << "AVL Interval Tree after insertions:" << std::endl;
+    avlIntervalTree.display();
     
     
     return 0;

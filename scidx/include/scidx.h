@@ -6,6 +6,7 @@
 
 
 #include <scidx_rb_interval_tree.h>
+#include <scidx_avl_interval_tree.h>
 #include <scidx_rw.h>
 #include <scidx_block_min_max.h>
 
@@ -22,7 +23,8 @@
 extern "C" {
 #endif
 
-void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
+void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
+
 
 #ifdef __cplusplus
 }

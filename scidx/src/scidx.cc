@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <scidx_rb_interval_tree.h>
+#include <scidx_avl_interval_tree.h>
 #include <scidx_defines.h>
 #include <scidx_block_min_max.h>
 #include <scidx_Huffman.h>
@@ -16,17 +17,19 @@
 using namespace scidx;
 
 
-void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
+void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
 
-std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree);
 
-std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree);
+std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree);
 
-std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree);
+std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree);
 
-std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound);
+std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree);
 
-std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeValue, float error_bound);
+
+std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound);
+
+std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeValue, float error_bound, const std::string& outputFileName);
 
 std::vector<unsigned char> singleHuffmanEncodeZstd(std::vector<int> type, HuffmanTree *huffmanTree);
 
@@ -40,7 +43,21 @@ std::vector<int> compress_data(float *oriData, size_t dataLength, float error_bo
 
 void decode_withSubTree(unsigned char *s, unsigned char *encode, size_t targetLength, int *out);
 
-std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxrbNode<float> *>> &tree);
+std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxRBNode<float> *>> &tree);
+
+std::vector<float> decodeArrayType(const std::vector<int>& type, const std::string& inputFileName, float error_bound);
+
+float dequantizeValue(int quantizedValue, float error_bound, int intvRadius, float interval, float& baseValue);
+
+ScidxRBNode<float>* reconstructAndDequantizeTree(const std::vector<int>& type, const std::vector<int>& structureVec, float error_bound);
+
+void reconstructMax(ScidxRBNode<float>* root, const std::vector<float>& decodeFlattenedMax);
+
+void reconstractLeafMaxHigh(ScidxRBNode<float>* root, const std::vector<float>& decodeFlattenedLeafMaxHigh);
+
+void updateMaxHighOfTree(ScidxRBNode<float>* node);
+
+
 
 // 对单个子tree进行进行pre+quanti
 // min，max,max_high,id. min层级顺序预测，但每层第一个点由父节点预测. max,max_high层级预测
@@ -48,37 +65,26 @@ std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxrbNode<
 
 
 
-void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound){
+void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector){
     std::vector<float> treeNodeMaxArray = flattenedTreeNodeMax(singleSubTree);
     std::vector<float> treeNodeMaxHighArray = flattenedTreeNodeMaxHigh(singleSubTree);
     std::vector<float> leafNodeMaxHighArray = getLeafNodeMaxHigh(singleSubTree);
+    
+    std::cout << "leafNodeMaxHighArray contains: ";
+    for (float value : leafNodeMaxHighArray) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
 
     size_t bytesOfMax = treeNodeMaxArray.size() * sizeof(float);
     std::cout << "treeNodeMax occupies " << bytesOfMax << " bytes before" << std::endl;
 
 
-    std::vector<int> treeNodeMaxType = computeArrayType(treeNodeMaxArray, error_bound);
-    std::vector<int> treeNodeMaxHighType = computeArrayType(treeNodeMaxHighArray, error_bound);
-    std::vector<int> leafNodeMaxHighType = computeArrayType(leafNodeMaxHighArray, error_bound);
+
+    std::vector<int> treeNodeMaxType = computeArrayType(treeNodeMaxArray, error_bound, "OutlayerMax.txt");
+    std::vector<int> treeNodeMaxHighType = computeArrayType(treeNodeMaxHighArray, error_bound, "OutlayerMaxHigh.txt");
+    std::vector<int> leafNodeMaxHighType = computeArrayType(leafNodeMaxHighArray, error_bound, "OutlayerMaxHighLeafNode.txt");
     std::vector<int> treeNodeMinType = preQuantiSingleTreeMin(singleSubTree, error_bound);
-
-/*     std::cout << "treeNodeMaxType: ";
-    for (const auto& element : treeNodeMaxType) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "treeNodeMaxHighType: ";
-    for (const auto& element : treeNodeMaxHighType) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "treeNodeMinType: ";
-    for (const auto& element : treeNodeMinType) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl; */
 
     int stateNum = 2 * 16384;
     HuffmanTree *huffmanTreeMax = createHuffmanTree(stateNum);
@@ -106,28 +112,31 @@ void compressTree(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, 
     std::vector<int> decompressedTypeMaxHigh =singleHuffmanDecodeZstd(compressedMaxHigh, treeNodeMaxHighType, huffmanOutMaxHigh);
     std::vector<int> decompressedTypeLeafMaxHigh =singleHuffmanDecodeZstd(compressedLeafMaxHigh, leafNodeMaxHighType, huffmanOutLeafMaxHigh);
     std::vector<int> decompressedTypeMin =singleHuffmanDecodeZstd(compressedMin, treeNodeMinType, huffmanOutMin);
+    
+    ScidxRBNode<float>* reconstructMin = reconstructAndDequantizeTree(decompressedTypeMin, firstVector, error_bound);
+    std::vector<float> decodeFlattenedMax = decodeArrayType(decompressedTypeMax, "OutlayerMax.txt", error_bound);
+    std::vector<float> decodeFlattenedLeafMaxHigh = decodeArrayType(decompressedTypeLeafMaxHigh, "OutlayerMaxHighLeafNode.txt", error_bound);
 
-/*      std::cout << "decompressedTypeMax: ";
-    for (const auto& element : decompressedTypeMax) {
-        std::cout << element << " ";
+    std::cout << "decodeFlattenedLeafMaxHigh contains: ";
+    for (float value : decodeFlattenedLeafMaxHigh) {
+        std::cout << value << " ";
     }
     std::cout << std::endl;
+    
+    reconstructMax(reconstructMin,decodeFlattenedMax);
 
-    std::cout << "decompressedTypeMaxHigh: ";
-    for (const auto& element : decompressedTypeMaxHigh) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl;
+    reconstractLeafMaxHigh(reconstructMin, decodeFlattenedLeafMaxHigh);
 
-    std::cout << "decompressedTypeMin: ";
-    for (const auto& element : decompressedTypeMin) {
-        std::cout << element << " ";
-    }
-    std::cout << std::endl; */
+    updateMaxHighOfTree(reconstructMin);
+    
+    ScidxRedBlackIntervalTree<float> tree;
+    tree.setRoot(reconstructMin);
+    tree.display();     
+
 }
 
 // 对单个子树的max,打平为层级顺序
-std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree)
+std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree)
 {
     std::vector<float> flattenedNodeMax;
 
@@ -135,7 +144,7 @@ std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxrbNode<floa
     {
         for (const auto &node : row)
         {
-            flattenedNodeMax.push_back(node->rbInterval.high);
+            flattenedNodeMax.push_back(node->interval.high);
         }
     }
 
@@ -143,7 +152,7 @@ std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxrbNode<floa
 }
 
 // 对单个子树的max_high,打平为层级顺序
-std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree)
+std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree)
 {
     std::vector<float> flattenedNodeMaxHigh;
 
@@ -158,25 +167,33 @@ std::vector<float> flattenedTreeNodeMaxHigh(std::vector<std::vector<ScidxrbNode<
     return flattenedNodeMaxHigh;
 }
 
-// 获取单个子树的叶子节点的max_high
-std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree){
+std::vector<float> getLeafNodeMaxHigh(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree) {
+    std::vector<float> leafNodeMaxHigh;
 
-std::vector<float> leafNodeMaxHigh;
+    if (singleSubTree.empty()) return leafNodeMaxHigh; // 确保输入不为空
 
-for (const auto& levelNodes : singleSubTree) {
-    for (ScidxrbNode<float>* node : levelNodes) {
-        if (node->left == nullptr && node->right == nullptr) {
-            leafNodeMaxHigh.push_back(node->max_high);
+    // 遍历所有层，除了最后一层
+    for (size_t i = 0; i < singleSubTree.size() - 1; ++i) {
+        for (ScidxRBNode<float>* node : singleSubTree[i]) {
+            // 如果节点是叶子节点（即没有子节点），则添加其max_high值
+            if (node->left == nullptr && node->right == nullptr) {
+                leafNodeMaxHigh.push_back(node->max_high);
+            }
         }
     }
-}
-return leafNodeMaxHigh;
+
+    // 对于最后一层，添加所有节点的max_high值
+    for (ScidxRBNode<float>* node : singleSubTree.back()) {
+        leafNodeMaxHigh.push_back(node->max_high);
+    }
+
+    return leafNodeMaxHigh;
 }
 
 // 对单个子树的min,进行prediction+quantization,返回pre+quanti后的值
 // 对于子树的min,用每一层的第一个点的解压值去预测下一层的第一个点，其他点层级顺序预测
 // 由什么值去预测下一个点没关系，但是用的一定是解压值，因为解压的时候拿不到原始值
-std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<float> *>> singleSubTree, float error_bound)
+std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound)
 {
 
     int quantization_intervals = 16384;
@@ -188,6 +205,7 @@ std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<floa
     std::vector<int> type;
     float curData, predData, firstNodePredData;
 
+    std::ofstream originalDataFile("original_data.txt");
     // level是当前层
     for (size_t level = 0; level < singleSubTree.size(); ++level)
     {
@@ -195,7 +213,7 @@ std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<floa
         {
             // index是当前层的第n个点
             // curData为真实值
-            curData = singleSubTree[level][index]->rbInterval.low;
+            curData = singleSubTree[level][index]->interval.low;
 
             if (level == 0 && index == 0)
             {
@@ -203,6 +221,7 @@ std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<floa
                 // TODO：记录第一个点原始值
                 type.push_back(0);
                 firstNodePredData = curData;
+                originalDataFile << curData << std::endl;
             }
             else if (index == 0)
             {
@@ -230,9 +249,11 @@ std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<floa
                 {
                     // 处理超范围数据
                     // TODO：记录当前原始值
+                    std::cout << "outLayer aaaaaaaaa" << std::endl;
                     type.push_back(0);
                     predData = curData;
                     firstNodePredData = curData;
+                    originalDataFile << curData << std::endl;
                 }
             }
             else
@@ -256,19 +277,21 @@ std::vector<int> preQuantiSingleTreeMin(std::vector<std::vector<ScidxrbNode<floa
                 }
                 else
                 {
+                    std::cout << "outLayer aaaaaaaaa" << std::endl;
                     // 处理不可预测的数据
                     type.push_back(0);
                     predData = curData;
+                    originalDataFile << curData << std::endl;
                 }
             }
         }
     }
-
+    originalDataFile.close();
     return type;
 }
 
 // 根据数组，通过前一个值的解压值预测后一个值，计算pre+quantization后的值
-std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeValue, float error_bound)
+std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeValue, float error_bound, const std::string& outputFileName)
 {
     int quantization_intervals = 16384;
     int intvRadius = quantization_intervals / 2;
@@ -276,10 +299,13 @@ std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeVal
     float interval = 2 * error_bound;
     float recip_precision = 1 / error_bound;
 
+    std::ofstream originalDataFile(outputFileName);
+
     // 创建一个与 flattenedTreeNodeValue 大小相同的、初始值为 0 的向量
     std::vector<int> type(flattenedTreeNodeValue.size(), 0);
 
     float predData = flattenedTreeNodeValue[0];
+    originalDataFile << flattenedTreeNodeValue[0] << std::endl;
     for (size_t i = 1; i < flattenedTreeNodeValue.size(); i++)
     {
         float curData = flattenedTreeNodeValue[i];
@@ -305,11 +331,54 @@ std::vector<int> computeArrayType(const std::vector<float> &flattenedTreeNodeVal
             // 处理超越范围的
             type[i] = 0;
             predData = curData;
+            originalDataFile << curData << std::endl;
         }
     }
 
     return type;
 }
+
+std::vector<float> decodeArrayType(const std::vector<int>& type, const std::string& inputFileName, float error_bound)
+{
+    int quantization_intervals = 16384;
+    int intvRadius = quantization_intervals / 2;
+    float interval = 2 * error_bound;
+
+    std::ifstream compressedDataFile(inputFileName);
+    if (!compressedDataFile.is_open()) {
+        // 处理文件打开失败的情况
+        throw std::runtime_error("Failed to open input file: " + inputFileName);
+    }
+
+    std::vector<float> decodedValues;
+    float predData = 0.0f;
+
+    for (size_t i = 0; i < type.size(); ++i)
+    {
+        if (type[i] == 0)
+        {
+            // 处理超越范围的情况
+            float curData;
+            compressedDataFile >> curData;
+            decodedValues.push_back(curData);
+            predData = curData;
+        }
+        else
+        {
+
+            int state = std::abs(type[i] - intvRadius);
+            float adjustment = state * interval;
+            float curData = (type[i] >= intvRadius) ? predData  + adjustment : predData  - adjustment;
+
+            decodedValues.push_back(curData);
+            predData = curData;
+        }
+    }
+
+    compressedDataFile.close();
+    return decodedValues;
+}
+
 
 //对type进行Huffman encode和zstd压缩
 std::vector<unsigned char> singleHuffmanEncodeZstd(std::vector<int> type, HuffmanTree *huffmanTree )
@@ -518,7 +587,7 @@ void encode_and_append_to_buffer(HuffmanTree *huffmanTree, int *m, size_t mLengt
 
 
 
-void CollectMaxHighInOrder(const std::vector<std::vector<ScidxrbNode<float> *>> &tree, int level, int index, std::vector<float> &flattenedNodeMax_high)
+void CollectMaxHighInOrder(const std::vector<std::vector<ScidxRBNode<float> *>> &tree, int level, int index, std::vector<float> &flattenedNodeMax_high)
 {
     if (level >= tree.size() || index >= tree[level].size())
     {
@@ -531,7 +600,7 @@ void CollectMaxHighInOrder(const std::vector<std::vector<ScidxrbNode<float> *>> 
     CollectMaxHighInOrder(tree, level + 1, leftIndex, flattenedNodeMax_high);
 
     // 添加当前节点的 max_high 到 flattenedNodeMax_high
-    ScidxrbNode<float> *node = tree[level][index];
+    ScidxRBNode<float> *node = tree[level][index];
     if (node != nullptr)
     {
         flattenedNodeMax_high.push_back(node->max_high);
@@ -543,9 +612,228 @@ void CollectMaxHighInOrder(const std::vector<std::vector<ScidxrbNode<float> *>> 
     CollectMaxHighInOrder(tree, level + 1, rightIndex, flattenedNodeMax_high);
 }
 
-std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxrbNode<float> *>> &tree)
+std::vector<float> flattenTreeMaxHigh(const std::vector<std::vector<ScidxRBNode<float> *>> &tree)
 {
     std::vector<float> flattenedNodeMax_high;
     CollectMaxHighInOrder(tree, 0, 0, flattenedNodeMax_high);
     return flattenedNodeMax_high;
+}
+
+float dequantizeValue(int quantizedValue, float error_bound, int intvRadius, float interval, float& baseValue) {
+    if (quantizedValue == 0) {
+        // Special case handling: use the base value directly
+        return baseValue;
+    }
+    int state = std::abs(quantizedValue - intvRadius);
+    float adjustment = state * interval;
+    return (quantizedValue >= intvRadius) ? baseValue + adjustment : baseValue - adjustment;
+}
+
+
+
+
+ScidxRBNode<float>* reconstructAndDequantizeTree(const std::vector<int>& type, const std::vector<int>& structureVec, float error_bound) {
+    for (int elem : type) {
+        std::cout << elem << " ";
+    }
+    std::cout << std::endl;
+    
+    if (type.empty() || structureVec.empty()) return nullptr;
+
+    int quantization_intervals = 16384;
+    int intvRadius = quantization_intervals / 2;
+    float interval = 2 * error_bound;
+
+    // Read the root value from "original_data.txt"
+    std::ifstream originalDataFile("original_data.txt");
+    float rootValue;
+    if (!(originalDataFile >> rootValue)) {
+        std::cerr << "Failed to read root value from original_data.txt\n";
+        return nullptr;
+    }
+    originalDataFile.close();
+
+    ScidxRBNode<float>* root = new ScidxRBNode<float>({ScidxInterval<float>{rootValue, rootValue}, 0});
+    std::queue<ScidxRBNode<float>**> nodesQueue;
+    nodesQueue.push(&root);
+
+    size_t typeIndex = 0;
+    size_t structIndex = 0;
+    float baseValue = rootValue; // Initialize base value with the root's value
+
+    std::queue<float> baseValuesForNextLevel; // Queue to manage base values for the first node of each level
+    int currentLevelNodeCount = 1;
+    int processedNodeCount = 0;
+    bool isLevelFirstNode = true; // Flag to indicate the first node of the current level
+    int readIndex = 0;
+
+    while (!nodesQueue.empty() && structIndex < structureVec.size()) {
+        ScidxRBNode<float>** currentNodePtr = nodesQueue.front();
+        nodesQueue.pop();
+        
+        // If this is the first node of a new level, update the base value accordingly
+        if (isLevelFirstNode && !baseValuesForNextLevel.empty()) {
+            baseValue = baseValuesForNextLevel.front();
+            baseValuesForNextLevel.pop();
+        }
+
+        // Process the current node if it exists
+        float dequantizedValue;
+        if (structureVec[structIndex] == 1) {
+            if (typeIndex != 0 && type[typeIndex] == 0) {
+                std::cout << "Index: " << typeIndex << ", Value: " << type[typeIndex] << std::endl;
+                std::ifstream dataFile("original_data.txt");
+                // Set the file position to the correct position based on typeIndex
+                dataFile.seekg(readIndex * sizeof(int), std::ios::beg);
+                float readValue;
+                if (!(dataFile >> readValue)) {
+                    std::cerr << "Failed to read data from original_data.txt\n";
+                    dataFile.close();
+                    return nullptr;
+                }
+                dataFile.close();
+                dequantizedValue = readValue;
+                typeIndex++;
+
+            }
+            else {
+                dequantizedValue = dequantizeValue(type[typeIndex], error_bound, intvRadius, interval, baseValue);
+                typeIndex++;
+
+            }
+            *currentNodePtr = new ScidxRBNode<float>({ScidxInterval<float>{dequantizedValue, dequantizedValue}, 0});
+            if (isLevelFirstNode) {
+                baseValuesForNextLevel.push(dequantizedValue);
+                isLevelFirstNode = false; // Reset flag for the current level
+            }
+            baseValue = dequantizedValue;
+            // Add children to the queue
+            nodesQueue.push(&((*currentNodePtr)->left));
+            nodesQueue.push(&((*currentNodePtr)->right));
+        }
+
+        // Check if the current level is complete
+        if (++processedNodeCount == currentLevelNodeCount && !nodesQueue.empty()) {
+            // Prepare for the next level
+            currentLevelNodeCount = nodesQueue.size(); // Update the count for the next level
+            processedNodeCount = 0; // Reset processed node count for the new level
+            isLevelFirstNode = true; // The next node processed will be the first node of a new level
+        }
+
+        structIndex++; // Move to the next structure vector element
+    }
+
+    return root;
+}
+
+void reconstructMax(ScidxRBNode<float>* root, const std::vector<float>& decodeFlattenedMax) {
+    if (!root) return; 
+
+    std::queue<ScidxRBNode<float>*> queue;
+    queue.push(root);
+
+    size_t index = 0; 
+
+    while (!queue.empty() && index < decodeFlattenedMax.size()) {
+        ScidxRBNode<float>* current = queue.front();
+        queue.pop();
+
+        
+        current->interval.high = decodeFlattenedMax[index++];
+
+        if (current->left != nullptr) {
+            queue.push(current->left);
+        }
+
+        if (current->right != nullptr) {
+            queue.push(current->right);
+        }
+    }
+}
+
+
+
+
+void reconstractLeafMaxHigh(ScidxRBNode<float>* root, const std::vector<float>& decodeFlattenedLeafMaxHigh) {
+    if (!root) return; // 确保树不为空
+
+    std::queue<ScidxRBNode<float>*> nodesQueue; // 用于BFS的队列
+    nodesQueue.push(root);
+    size_t valueIndex = 0; // 当前处理的decodeFlattenedLeafMaxHigh中的索引
+
+    // 用于标记最后一层开始的标志
+    bool lastLayerStarted = false;
+    std::queue<ScidxRBNode<float>*> nextLayerNodes;
+    nextLayerNodes.push(root);
+
+    while (!nodesQueue.empty()) {
+        size_t layerSize = nodesQueue.size();
+        lastLayerStarted = nextLayerNodes.empty();
+
+        while (layerSize-- > 0) {
+            ScidxRBNode<float>* currentNode = nodesQueue.front();
+            nodesQueue.pop();
+
+            // 如果当前节点是叶子节点或已经开始处理最后一层
+            if ((currentNode->left == nullptr && currentNode->right == nullptr && !lastLayerStarted) || lastLayerStarted) {
+                if (valueIndex < decodeFlattenedLeafMaxHigh.size()) {
+                    currentNode->max_high = decodeFlattenedLeafMaxHigh[valueIndex++];
+                } else {
+                    std::cerr << "Error: Not enough values in decodeFlattenedLeafMaxHigh to update the node." << std::endl;
+                    return;
+                }
+            }
+
+            // 将子节点加入队列
+            if (currentNode->left) {
+                nodesQueue.push(currentNode->left);
+                nextLayerNodes.push(currentNode->left);
+            }
+            if (currentNode->right) {
+                nodesQueue.push(currentNode->right);
+                nextLayerNodes.push(currentNode->right);
+            }
+        }
+
+        // 准备下一层节点
+        if (nextLayerNodes.size() == nodesQueue.size()) {
+            nextLayerNodes = std::queue<ScidxRBNode<float>*>(); // 清空下一层节点的标记
+        }
+    }
+
+    // 检查是否所有的max_high值都已使用
+    if (valueIndex < decodeFlattenedLeafMaxHigh.size()) {
+        std::cerr << "Warning: Not all values in decodeFlattenedLeafMaxHigh were used." << std::endl;
+    }
+}
+
+void updateMaxHighOfTree(ScidxRBNode<float>* node) {
+    // 基本情况：如果节点为空，不需要更新
+    if (node == nullptr) {
+        return;
+    }
+
+    // 递归地更新左子树和右子树的max_high值
+    updateMaxHighOfTree(node->left);
+    updateMaxHighOfTree(node->right);
+
+    // 当前节点的max_high值至少是它自身的max值（即区间的high值）
+    float maxHigh = node->interval.high;
+
+    // 如果节点是叶子节点，它可能已经有一个预设的max_high值，使用预设的max_high值或当前的max值中的较大者
+    if (node->left == nullptr && node->right == nullptr) {
+        maxHigh = std::max(maxHigh, node->max_high);
+    }
+    else {
+        // 如果不是叶子节点，计算包括子节点的max_high值在内的最大max_high值
+        if (node->left != nullptr) {
+            maxHigh = std::max(maxHigh, node->left->max_high);
+        }
+        if (node->right != nullptr) {
+            maxHigh = std::max(maxHigh, node->right->max_high);
+        }
+    }
+
+    // 更新当前节点的max_high值
+    node->max_high = maxHigh;
 }
