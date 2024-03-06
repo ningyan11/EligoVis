@@ -200,6 +200,7 @@ int main(int argc, char *argv[]) {
     std::vector<int> combinedVector;
     std::vector<int> firstVectorOfMap;
 
+
     levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels, firstVectorOfMap);
     allSubTrees.push_back(firstSubTreeNodesInLevels);
     sizesOfBigMap.push_back(firstVectorOfMap.size());
@@ -227,12 +228,17 @@ int main(int argc, char *argv[]) {
         std::vector<std::vector<ScidxRBNode<float>*>> currentSubTreeNodesInLevels;
         std::vector<int> currentSubTreeVectorOfMap;
 
-        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels, currentSubTreeVectorOfMap);  
+        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels, currentSubTreeVectorOfMap); 
         sizesOfBigMap.push_back(currentSubTreeVectorOfMap.size());
         combinedVector.insert(combinedVector.end(), currentSubTreeVectorOfMap.begin(), currentSubTreeVectorOfMap.end());
-
  
         allSubTrees.push_back(currentSubTreeNodesInLevels);
+
+        //level of subtree is smaller than levelsToTraverse
+        if(currentSubTreeNodesInLevels.size() < levelsToTraverse){
+            continue;
+        }
+
         std::vector<ScidxRBNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
 
         rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
