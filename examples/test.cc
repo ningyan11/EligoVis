@@ -138,9 +138,10 @@ int main(int argc, char *argv[]) {
         interval.low = blockMinMax[i][0];
         interval.high = blockMinMax[i][1];
         intervals.push_back(interval);
+        //std::cout << interval.low << ", " << interval.high << std::endl;
     }
     
-
+    /*
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
@@ -219,6 +220,7 @@ int main(int argc, char *argv[]) {
         }
         
     }
+    */
     
 
     ScidxAVLIntervalTree<float> avlIntervalTree;
