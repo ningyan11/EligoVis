@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
+ScidxRBNode<float>*  compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
 
 
 #ifdef __cplusplus

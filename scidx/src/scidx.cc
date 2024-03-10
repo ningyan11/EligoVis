@@ -17,7 +17,7 @@
 using namespace scidx;
 
 
-void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
+ScidxRBNode<float>*  compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
 
 
 std::vector<float> flattenedTreeNodeMax(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree);
@@ -65,7 +65,7 @@ void updateMaxHighOfTree(ScidxRBNode<float>* node);
 
 
 
-void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector){
+ScidxRBNode<float>*  compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector){
     std::vector<float> treeNodeMaxArray = flattenedTreeNodeMax(singleSubTree);
     std::vector<float> treeNodeMaxHighArray = flattenedTreeNodeMaxHigh(singleSubTree);
     std::vector<float> leafNodeMaxHighArray = getLeafNodeMaxHigh(singleSubTree);
@@ -128,10 +128,10 @@ void compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, 
     reconstractLeafMaxHigh(reconstructMin, decodeFlattenedLeafMaxHigh);
 
     updateMaxHighOfTree(reconstructMin);
+
+    return reconstructMin;
     
-    ScidxRedBlackIntervalTree<float> tree;
-    tree.setRoot(reconstructMin);
-    tree.display();     
+       
 
 }
 

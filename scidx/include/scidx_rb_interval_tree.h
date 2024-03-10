@@ -354,4 +354,99 @@ void convertTreeToArray(ScidxRBNode<T>* root, std::vector<int>& result) {
     }
 }
 
+
+template <typename T>
+std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int levelsToTraverse) {
+    std::vector<int> result;
+    if (!tree.getRoot()) return result; 
+
+    std::queue<ScidxRBNode<T>*> queue;
+    queue.push(tree.getRoot());
+
+    int currentLevel = 1; 
+
+    while (!queue.empty()) {
+        int levelSize = queue.size(); 
+        std::vector<int> tempStates; 
+
+        while (levelSize > 0) {
+            ScidxRBNode<T>* node = queue.front();
+            queue.pop();
+
+            // level to cut tree
+             bool hasChild = (node && (node->left || node->right));
+            if ((currentLevel>1) && ((currentLevel - 1) % (levelsToTraverse-1 )== 0)) {
+                tempStates.push_back(hasChild ? 1 : 0);     
+            }
+
+          
+            if (node) {
+                queue.push(node->left ? node->left : nullptr);
+                queue.push(node->right ? node->right : nullptr);
+            } else {
+                
+                queue.push(nullptr);
+                queue.push(nullptr);
+            }
+
+            levelSize--;
+        }
+
+        if (!tempStates.empty() && std::all_of(tempStates.begin(), tempStates.end(), [](int i) { return i == 0; })) {
+            break;
+        }
+
+    
+        if ((currentLevel>1) && ((currentLevel - 1) % (levelsToTraverse-1 )== 0)) {
+
+
+            result.insert(result.end(), tempStates.begin(), tempStates.end());
+        }
+
+        currentLevel++; 
+    }
+
+    return result;
+}
+
+
+template <typename T>
+std::vector<ScidxRBNode<T>*> getLastLevelNodesIncludingNull(ScidxRBNode<T>* root) {
+    if (!root) return {}; // If the tree is empty, return an empty vector
+
+    std::vector<ScidxRBNode<T>*> lastLevelNodes, tempLevelNodes;
+    std::queue<ScidxRBNode<T>*> queue;
+    queue.push(root);
+
+    while (!queue.empty()) {
+        size_t levelSize = queue.size();
+        bool allNulls = true; // Flag to check if all nodes in this level are null
+
+        tempLevelNodes.clear(); // Clear tempLevelNodes for the new level
+
+        for (size_t i = 0; i < levelSize; ++i) {
+            ScidxRBNode<T>* currentNode = queue.front();
+            queue.pop();
+
+            tempLevelNodes.push_back(currentNode); // Save the current node (including null nodes)
+
+            if (currentNode) { // If the current node is not null
+                allNulls = false; // Not all nodes are null in this level
+                queue.push(currentNode->left);
+                queue.push(currentNode->right);
+            }
+        }
+
+        if (!allNulls) { // If not all nodes in this level are null, update lastLevelNodes
+            lastLevelNodes = tempLevelNodes;
+        } else {
+            // If all nodes in this level are null, exit the loop as we've found the last non-null level
+            break;
+        }
+    }
+
+    return lastLevelNodes; // Return the nodes of the last non-null level
+}
+
+
 #endif /* ----- #ifndef _SCIDX_RB_INTERVAL_TREE_H  ----- */
