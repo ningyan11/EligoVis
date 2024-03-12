@@ -430,10 +430,15 @@ std::vector<ScidxRBNode<T>*> getLastLevelNodesIncludingNull(ScidxRBNode<T>* root
 
             tempLevelNodes.push_back(currentNode); // Save the current node (including null nodes)
 
-            if (currentNode) { // If the current node is not null
-                allNulls = false; // Not all nodes are null in this level
-                queue.push(currentNode->left);
+             if (currentNode) {
+                allNulls = false; // There's at least one non-null node in this level
+
+                queue.push(currentNode->left); // It's safe to push nullptrs here
                 queue.push(currentNode->right);
+            } else {
+                // If the current node is null, push nullptrs for its children (maintains structure)
+                queue.push(nullptr);
+                queue.push(nullptr);
             }
         }
 

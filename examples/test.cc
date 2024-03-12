@@ -175,16 +175,10 @@ int main(int argc, char *argv[]) {
     std::cout << "RB Interval Tree after insertions:" << std::endl;
     rbIntervalTree.display();
 
-    int levelsToTraverse = 2;
+    int levelsToTraverse = 5;
 
     //begin to get the structure map of all subTrees
     std::vector<int> allSubTreeMap = getAllSubTreesMap(rbIntervalTree, levelsToTraverse);
-
-    std::cout << "allSubTreeMap contains: ";
-    for (int value : allSubTreeMap) {
-        std::cout << value << " ";
-    }
-    std::cout << std::endl;
 
     std::vector<std::vector<std::vector<ScidxRBNode<float>*>>> allSubTrees;
     std::vector<std::vector<ScidxRBNode<float>*>> firstSubTreeNodesInLevels;
@@ -339,28 +333,21 @@ int main(int argc, char *argv[]) {
         compressedSubTrees.push_back(compressedRoot);
     }
 
-    //display all the subTree(delay it later)
-    for (size_t i = 0; i < compressedSubTrees.size(); ++i) {
-        ScidxRedBlackIntervalTree<float> tree; 
-        tree.setRoot(compressedSubTrees[i]); 
-        std::cout << "Tree " << i + 1 << ":" << std::endl;
-        tree.display(); 
-        std::cout << std::endl; 
+    std::cout << "Displaying All Compressed SubTrees:" << std::endl;
+    for (auto& subtreeRoot : compressedSubTrees) {
+        
+        ScidxRedBlackIntervalTree<float> tempTree;
+        tempTree.setRoot(subtreeRoot); 
+        tempTree.display(); 
+        std::cout << "----------" << std::endl; 
     }
 
     
  ScidxRBNode<float>* finalRoot = attachSubTreesBFS(allSubTreeMap, compressedSubTrees);
  ScidxRedBlackIntervalTree<float> finalTree; 
  finalTree.setRoot(finalRoot);
+ std::cout << "reconstruct Tree" << std::endl;
  finalTree.display();
-
-
-
-
-
-
-
-
 
 
     /*const int numberQueryOfIntervals = 20;
@@ -431,22 +418,23 @@ size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::
 }
 
 
-//顺序解压
 ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees) {
     if (compressedSubTrees.empty() || fullTreeVectorOfMap.empty()) return nullptr;
 
     ScidxRBNode<float>* root = compressedSubTrees[0];
 
-    size_t mapIndex = 0; // 用于追踪fullTreeVectorOfMap的索引
-    size_t subTreeIndex = 1; // 用于追踪compressedSubTrees的索引
+    size_t mapIndex = 0; 
+    size_t subTreeIndex = 1; 
 
     while (mapIndex < fullTreeVectorOfMap.size()) {
-        // 获取当前最后一层节点
+       
         std::vector<ScidxRBNode<float>*> currentLastLevelNodes = getLastLevelNodesIncludingNull(root);   
 
         for (ScidxRBNode<float>* node : currentLastLevelNodes) {
+      
             if (node != nullptr && fullTreeVectorOfMap[mapIndex] == 1 && subTreeIndex < compressedSubTrees.size()) {
-                // 如果指示为1，则附加子树
+
+                // attach subTree
                 ScidxRBNode<float>* subTreeRoot = compressedSubTrees[subTreeIndex++];
             
                if(subTreeRoot->left != nullptr){
@@ -458,10 +446,10 @@ ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMa
                }
             
             }
-            mapIndex++; // 移动到fullTreeVectorOfMap的下一个指示
+            mapIndex++; 
         }  
-        // 检查是否需要根据当前队列状态重新获取最后一层节点
-        if (mapIndex >= fullTreeVectorOfMap.size()) break; // 如果已处理完fullTreeVectorOfMap，则结束循环
+        
+        if (mapIndex >= fullTreeVectorOfMap.size()) break; 
     }
     return root;
 }
