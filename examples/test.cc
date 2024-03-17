@@ -453,4 +453,3 @@ ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMa
     }
     return root;
 }
-
