@@ -28,6 +28,17 @@ ScidxInterval<T> generateRandomInterval(T maxLow, T maxHigh) {
     return interval;
 }
 
+template <typename T>
+bool containsDuplicateValues(const std::vector<T>& vec) {
+    for (auto it = vec.begin(); it != vec.end(); ++it) {
+        auto count = std::count(vec.begin(), vec.end(), *it);
+        if (count > 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
 int main(int argc, char *argv[]) {
 
     char *inputFileName = NULL;
@@ -120,6 +131,7 @@ int main(int argc, char *argv[]) {
     
 	
     std::vector<ScidxInterval<float>> intervals;
+    std::vector<float> all_lows;
 
     float global_min = std::numeric_limits<float>::max();
     float global_max = std::numeric_limits<float>::min();
@@ -139,7 +151,18 @@ int main(int argc, char *argv[]) {
         interval.high = blockMinMax[i][1];
         intervals.push_back(interval);
         //std::cout << interval.low << ", " << interval.high << std::endl;
+        all_lows.push_back(interval.low);
     }
+
+    if (containsDuplicateValues(all_lows))
+    {
+        std::cout << "multiple intervals have the same low end value" << std::endl;
+    }
+    else
+    {
+        std::cout << "all intervals have unique low end value" << std::endl;
+    }
+    
     
     /*
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
@@ -222,7 +245,7 @@ int main(int argc, char *argv[]) {
     }
     */
     
-
+    
     ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
@@ -232,6 +255,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "AVL Interval Tree after insertions:" << std::endl;
     avlIntervalTree.display();
+    
 
     return 0;
 }

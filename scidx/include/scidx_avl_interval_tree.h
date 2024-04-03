@@ -28,13 +28,15 @@ private:
         return (a > b) ? a : b;
     }
 
-    void insert(ScidxAVLNode<T>*& node, size_t id, ScidxInterval<T> interval);
+    ScidxAVLNode<T>* insert(ScidxAVLNode<T>* node, size_t id, ScidxInterval<T> interval);
 
     ScidxAVLNode<T>* rotateLeft(ScidxAVLNode<T>* x);
 
     ScidxAVLNode<T>* rotateRight(ScidxAVLNode<T>* y);
 
     int getBalance(ScidxAVLNode<T>* node);
+
+    int getMaxHigh(ScidxAVLNode<T>* node);
 
 public:
     ScidxAVLIntervalTree() : root(nullptr) {}
@@ -53,32 +55,33 @@ int ScidxAVLIntervalTree<T>::height(ScidxAVLNode<T>* node) {
 }
 
 template<typename T>
-void ScidxAVLIntervalTree<T>::insert(ScidxAVLNode<T>*& node, size_t id, ScidxInterval<T> interval) {
+ScidxAVLNode<T>* ScidxAVLIntervalTree<T>::insert(ScidxAVLNode<T>* node, size_t id, ScidxInterval<T> interval) {
     if (node == nullptr) {
-        node = new ScidxAVLNode<T>(interval, id);
-        return;
+        return new ScidxAVLNode<T>(interval, id);
     }
 
     if (interval.low < node->interval.low)
-        insert(node->left, id, interval);
+        node->left = insert(node->left, id, interval);
     else
-        insert(node->right, id, interval);
+        node->right = insert(node->right, id, interval);
 
     node->height = max(height(node->left), height(node->right)) + 1;
+
+    node->max_high = max(node->interval.high, max(getMaxHigh(node->left), getMaxHigh(node->right)));
 
     int balance = getBalance(node);
 
     if (balance > 1 && interval.low < node->left->interval.low) {
-        node = rotateRight(node);
+        return rotateRight(node);
     }
     
     if (balance < -1 && interval.low > node->right->interval.low) {
-        node = rotateLeft(node);
+        return rotateLeft(node);
     }
 
     if (balance > 1 && interval.low > node->left->interval.low) {
         node->left = rotateLeft(node->left);
-        node = rotateRight(node);
+        return rotateRight(node);
     }
 
     if (balance < -1 && interval.low < node->right->interval.low) {
@@ -109,20 +112,21 @@ void ScidxAVLIntervalTree<T>::insert(ScidxAVLNode<T>*& node, size_t id, ScidxInt
         //std::cout << "  node left: " << node->left->id << ", " << "[" << node->left->interval.low << " " << node->left->interval.high << "]" << std::endl;
         //std::cout << "  node: " << node->id << ", " << "[" << node->interval.low << " " << node->interval.high << "]" << std::endl;
         //std::cout << "  node right: " << node->right->id << ", " << "[" << node->right->interval.low << " " << node->right->interval.high << "]" << std::endl;
-        node = rotateLeft(node);
+        return rotateLeft(node);
         //std::cout << "at line " << __LINE__ << std::endl;
         //std::cout << "  node left: " << node->left->id << ", " << "[" << node->left->interval.low << " " << node->left->interval.high << "]" << std::endl;
         //std::cout << "  node: " << node->id << ", " << "[" << node->interval.low << " " << node->interval.high << "]" << std::endl;
         //std::cout << "  node right: " << node->right->id << ", " << "[" << node->right->interval.low << " " << node->right->interval.high << "]" << std::endl;
     }
 
-    node->max_high = max(node->interval.high, max((node->left ? node->left->max_high : std::numeric_limits<T>::min()), (node->right ? node->right->max_high : std::numeric_limits<T>::min())));
+    //node->max_high = max(node->interval.high, max((node->left ? node->left->max_high : std::numeric_limits<T>::min()), (node->right ? node->right->max_high : std::numeric_limits<T>::min())));
+    return node;
 }
 
 template<typename T>
 ScidxAVLNode<T>* ScidxAVLIntervalTree<T>::rotateLeft(ScidxAVLNode<T>* x) {
-    if (x == nullptr || x->right == nullptr)
-        return x;
+    //if (x == nullptr || x->right == nullptr)
+    //    return x;
 
     ScidxAVLNode<T>* y = x->right;
     ScidxAVLNode<T>* T2 = y->left;
@@ -133,16 +137,16 @@ ScidxAVLNode<T>* ScidxAVLIntervalTree<T>::rotateLeft(ScidxAVLNode<T>* x) {
     x->height = max(height(x->left), height(x->right)) + 1;
     y->height = max(height(y->left), height(y->right)) + 1;
 
-    x->max_high = max(x->interval.high, max((x->left ? x->left->max_high : std::numeric_limits<T>::min()), (x->right ? x->right->max_high : std::numeric_limits<T>::min())));
-    y->max_high = max(y->interval.high, max((y->left ? y->left->max_high : std::numeric_limits<T>::min()), (y->right ? y->right->max_high : std::numeric_limits<T>::min())));
+    x->max_high = getMaxHigh(x);
+    y->max_high = getMaxHigh(y);
 
     return y;
 }
 
 template<typename T>
 ScidxAVLNode<T>* ScidxAVLIntervalTree<T>::rotateRight(ScidxAVLNode<T>* y) {
-    if (y == nullptr || y->left == nullptr)
-        return y;
+    //if (y == nullptr || y->left == nullptr)
+    //    return y;
 
     ScidxAVLNode<T>* x = y->left;
     ScidxAVLNode<T>* T2 = x->right;
@@ -153,8 +157,8 @@ ScidxAVLNode<T>* ScidxAVLIntervalTree<T>::rotateRight(ScidxAVLNode<T>* y) {
     y->height = max(height(y->left), height(y->right)) + 1;
     x->height = max(height(x->left), height(x->right)) + 1;
 
-    y->max_high = max(y->interval.high, max((y->left ? y->left->max_high : std::numeric_limits<T>::min()), (y->right ? y->right->max_high : std::numeric_limits<T>::min())));
-    x->max_high = max(x->interval.high, max((x->left ? x->left->max_high : std::numeric_limits<T>::min()), (x->right ? x->right->max_high : std::numeric_limits<T>::min())));
+    y->max_high = getMaxHigh(y);
+    x->max_high = getMaxHigh(x);
 
     return x;
 }
@@ -167,8 +171,15 @@ int ScidxAVLIntervalTree<T>::getBalance(ScidxAVLNode<T>* node) {
 }
 
 template<typename T>
+int ScidxAVLIntervalTree<T>::getMaxHigh(ScidxAVLNode<T>* node) {
+    if (node == nullptr)
+        return 0;
+    return max(node->max_high, max(getMaxHigh(node->left), getMaxHigh(node->right)));
+}
+
+template<typename T>
  void ScidxAVLIntervalTree<T>::insertNode(size_t id, ScidxInterval<T> interval) {
-    insert(root, id, interval);
+    root = insert(root, id, interval);
  }
 
  template <typename T>
