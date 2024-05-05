@@ -250,11 +250,6 @@ void queryHelper(ScidxRBNode<T>* currentNode, const ScidxInterval<T>& queryInter
     }
 }
 
-// Function to check if two intervals intersect
-template <typename T>
-bool doIntervalsIntersect(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2) {
-    return (interval1.low <= interval2.high && interval1.high >= interval2.low);
-}
 
 template <typename T>
 void levelOrderTraversal(ScidxRBNode<T>* root, int levelsToTraverse, std::vector<std::vector<ScidxRBNode<T>*>>& result) {

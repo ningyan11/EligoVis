@@ -164,88 +164,6 @@ int main(int argc, char *argv[]) {
     }
     
     
-    /*
-    ScidxRedBlackIntervalTree<float> rbIntervalTree;
-
-    for (size_t i = 0; i < intervals.size(); i++)
-    {
-        //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
-        rbIntervalTree.insert(intervals[i], i);
-        
-    }
-
-    std::cout << "Red-Black Interval Tree after insertions:" << std::endl;
-    rbIntervalTree.display();
-
-    int levelsToTraverse = 3;
-
-    std::vector<std::vector<std::vector<ScidxRBNode<float>*>>> allSubTrees;
-    std::vector<std::vector<ScidxRBNode<float>*>> firstSubTreeNodesInLevels;
-
-    levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels);
-    allSubTrees.push_back(firstSubTreeNodesInLevels);
-
-    std::vector<ScidxRBNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
-
-    std::vector<ScidxRBNode<float>*> rootsOfNewSubTrees;
-
-    rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfFirstSubTree.begin(), lastLevelOfFirstSubTree.end());
-
-    while (!rootsOfNewSubTrees.empty())
-    {
-        
-        ScidxRBNode<float>* node = rootsOfNewSubTrees.front();
-        rootsOfNewSubTrees.erase(rootsOfNewSubTrees.begin());  
-
-        if (node->left == nullptr && node->right == nullptr)
-        {
-            continue;
-        }
-        
-
-        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTreeNodesInLevels;
-        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels);   
-        allSubTrees.push_back(currentSubTreeNodesInLevels);
-        std::vector<ScidxRBNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
-
-        rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
-
-    }
-
-    for (size_t i = 0; i < allSubTrees.size(); i++)
-    {
-        std::cout << "Subtree #" << i << ":" << std::endl;
-        for (size_t j = 0; j < allSubTrees[i].size(); j++)
-        {
-            std::cout << "    level #" << j << ":" << std::endl;
-            for (size_t k = 0; k < allSubTrees[i][j].size(); k++)
-            {
-                std::cout << "        " << "[" << allSubTrees[i][j][k]->interval.low << ", " << allSubTrees[i][j][k]->interval.high << "]" << std::endl;
-            }
-            
-        }
-        
-    }
-
-    const int numberQueryOfIntervals = 20;
-    const float maxLow = global_min;
-    const float maxHigh = global_max;
-
-    for (size_t i = 0; i < numberQueryOfIntervals; i++)
-    {
-        ScidxInterval<float> queryInterval = generateRandomInterval(maxLow, maxHigh);
-        std::cout << "query interval: [" << queryInterval.low << ", " << queryInterval.high << "]" << std::endl;
-        std::vector<ScidxRBNode<float>*> result = rbIntervalTree.query(queryInterval);
-        std::cout << "overlapped intervals: " << std::endl;
-        for (size_t j = 0; j < result.size(); j++)
-        {
-            std::cout << "    [" << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
-        }
-        
-    }
-    */
-    
-    
     ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
@@ -255,6 +173,23 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "AVL Interval Tree after insertions:" << std::endl;
     avlIntervalTree.display();
+
+    const int numberQueryOfIntervals = 20;
+    const float maxLow = global_min;
+    const float maxHigh = global_max;
+
+    for (size_t i = 0; i < numberQueryOfIntervals; i++)
+    {
+        ScidxInterval<float> queryInterval = generateRandomInterval(maxLow, maxHigh);
+        std::cout << "query interval: [" << queryInterval.low << ", " << queryInterval.high << "]" << std::endl;
+        std::vector<ScidxAVLNode<float>*> result = avlIntervalTree.query(queryInterval);
+        std::cout << "overlapped intervals: " << std::endl;
+        for (size_t j = 0; j < result.size(); j++)
+        {
+            std::cout << "    [" << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
+        }
+        
+    }
     
 
     return 0;
