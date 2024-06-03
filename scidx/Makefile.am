@@ -3,9 +3,9 @@ AUTOMAKE_OPTIONS=foreign
 include_HEADERS=include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_Huffman.h include/scidx_block_min_max.h
 
 lib_LTLIBRARIES=libscidx.la
-libscidx_la_CXXFLAGS=-I./include -I../zstd/
-libscidx_la_LDFLAGS = -version-info  1:0:0
-libscidx_la_LIDADD=../zstd/.libs/libzstd.a
+libscidx_la_CXXFLAGS=-I./include -I../zstd/ -I/opt/homebrew/Cellar/adios2/2.10.0/include 
+libscidx_la_LDFLAGS = -version-info  1:0:0 -L/opt/homebrew/Cellar/adios2/2.10.0/lib
+libscidx_la_LIDADD=../zstd/.libs/libzstd.a -ladios2 -ladios2_cxx11_mpi
 if OPENMP
 libscidx_la_CXXFLAGS+=-fopenmp
 libscidx_la_LDFLAGS+=-fopenmp

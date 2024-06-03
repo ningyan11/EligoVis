@@ -9,6 +9,8 @@
 #include <scidx_avl_interval_tree.h>
 #include <scidx_rw.h>
 #include <scidx_block_min_max.h>
+#include <scidx_Huffman.h>
+#include <adios2.h>
 
 #ifndef _SCIDX_H
 #define _SCIDX_H
@@ -23,7 +25,13 @@
 extern "C" {
 #endif
 
-ScidxRBNode<float>*  compressTree(std::vector<std::vector<ScidxRBNode<float> *>> singleSubTree, float error_bound, std::vector<int> firstVector);
+void compressTree(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
+
+ScidxRBNode<float>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
+
+void computeTypeBuffer(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, std::vector<int>& allTreeTypesLow, std::vector<int>& allTreeTypesHigh, std::vector<int>& allTreeTypesMaxhigh);
+
+scidx::HuffmanTree* fullHuffman(std::vector<int>& allTreeTypes, adios2::Engine& engine, adios2::IO& io, const std::string& variableName);
 
 
 #ifdef __cplusplus

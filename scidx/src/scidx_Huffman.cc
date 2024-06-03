@@ -806,7 +806,8 @@ void init_and_serialize_Huffmantree(HuffmanTree* huffmanTree, int *s, size_t len
 	intToBytes_bigEndian(buffer, huffmanTree->stateNum/2); //real number of intervals
 	memcpy(*out+4, buffer, 4);
 	memcpy(*out+8, treeBytes, treeByteSize);
-	free(treeBytes);	
+	free(treeBytes);
+	*outSize = 8 + treeByteSize; 	
 }
 
 void encode_withTree(HuffmanTree* huffmanTree, int *s, size_t length, unsigned char **out, size_t *outSize)

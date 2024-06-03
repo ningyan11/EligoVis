@@ -822,9 +822,31 @@ src/libscidx_la-scidx.lo: src/scidx.cc include/scidx.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__filesystem/recursive_directory_iterator.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__filesystem/u8path.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree \
   include/scidx_avl_interval_tree.h include/scidx_rw.h \
-  include/scidx_block_min_max.h include/scidx_Huffman.h ../zstd/zstd.h \
-  include/scidx_BytesToolkit.h
+  include/scidx_block_min_max.h include/scidx_Huffman.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSConfig.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSMacros.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSTypes.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/complex \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSTypes.inl \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOS.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/IO.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Attribute.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Engine.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOSView.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Types.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Variable.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Operator.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/VariableNT.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Group.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/set \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOS.inl \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Query.h \
+  /opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/fstream/ADIOS2fstream.h \
+  ../zstd/zstd.h include/scidx_BytesToolkit.h
 
 include/scidx.h:
 
@@ -2476,6 +2498,10 @@ include/scidx_defines.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree:
+
 include/scidx_avl_interval_tree.h:
 
 include/scidx_rw.h:
@@ -2483,6 +2509,46 @@ include/scidx_rw.h:
 include/scidx_block_min_max.h:
 
 include/scidx_Huffman.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSConfig.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSMacros.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSTypes.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/complex:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/common/ADIOSTypes.inl:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOS.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/IO.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Attribute.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Engine.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOSView.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Types.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Variable.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Operator.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/VariableNT.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Group.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/set:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/ADIOS.inl:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/Query.h:
+
+/opt/homebrew/Cellar/adios2/2.10.0/include/adios2/cxx11/fstream/ADIOS2fstream.h:
 
 ../zstd/zstd.h:
 

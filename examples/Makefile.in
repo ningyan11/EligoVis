@@ -300,11 +300,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-AM_CPPFLAGS = -I../scidx/include -I../../zstd/ $(am__append_1)
+AM_CPPFLAGS = -I../scidx/include -I../../zstd/ \
+	-I/opt/homebrew/Cellar/adios2/2.10.0/include $(am__append_1)
 AM_FCFLAGS = -I../scidx/include -I../scidx/
 @OPENMP_TRUE@AM_LDFLAGS = -fopenmp
 test_SOURCES = test.cc
-test_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd
+test_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd -L/opt/homebrew/Cellar/adios2/2.10.0/lib -ladios2_cxx11
 all: all-am
 
 .SUFFIXES:

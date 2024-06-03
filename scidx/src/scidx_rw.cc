@@ -287,7 +287,7 @@ void scidx_writeIntData(int *data, size_t nbEle, char *tgtFilePath, int *status)
 	{
 		//printf("i=%d\n",i);
 		//printf("data[i]=%f\n",data[i]);
-		sprintf(s,"%d\n",data[i]);
+		snprintf(s, sizeof(s), "%d\n", data[i]);
 		fputs(s, pFile);
 	}
     

@@ -2,6 +2,8 @@
 #define _SCIDX_RB_INTERVAL_TREE_H
 
 #include <scidx_defines.h>
+#include <map>
+#include <utility>
 
 typedef enum ScidxRBColor 
 { RED, BLACK } ScidxRBColor;
@@ -38,6 +40,7 @@ public:
     void insert(const ScidxInterval<T>&, const size_t&);
     void display();
     std::vector<ScidxRBNode<T>*> query(const ScidxInterval<T>&);
+    std::pair<std::vector<ScidxRBNode<T>*>, std::map<int, std::vector<std::pair<ScidxRBNode<T>*, unsigned long long>>>> queryWithMap(const ScidxInterval<T>& queryInterval, int times, int levelsToTraverse, float error_bound);
 };
 
 
@@ -62,6 +65,14 @@ std::vector<ScidxRBNode<T>*> ScidxRedBlackIntervalTree<T>::query(const ScidxInte
     std::vector<ScidxRBNode<T>*> result;
     queryHelper(root, queryInterval, result);
     return result;
+}
+
+template <typename T>
+std::pair<std::vector<ScidxRBNode<T>*>, std::map<int, std::vector<std::pair<ScidxRBNode<T>*, unsigned long long>>>> ScidxRedBlackIntervalTree<T>::queryWithMap(const ScidxInterval<T>& queryInterval, int times, int levelsToTraverse, float error_bound) {
+    std::vector<ScidxRBNode<T>*> result;
+    std::map<int, std::vector<std::pair<ScidxRBNode<T>*, unsigned long long>>> depthNodesMap;
+    queryHelperWithMap(root, queryInterval, result, 0, 1, &depthNodesMap, times, levelsToTraverse, error_bound);
+    return {result, depthNodesMap};
 }
 
 template <typename T>
@@ -257,10 +268,52 @@ void queryHelper(ScidxRBNode<T>* currentNode, const ScidxInterval<T>& queryInter
     }
 }
 
+
+template <typename T>
+void queryHelperWithMap(
+    ScidxRBNode<T>* currentNode,
+    const ScidxInterval<T>& queryInterval,
+    std::vector<ScidxRBNode<T>*>& result,
+    int currentDepth, // 新增参数：当前深度，默认为0
+    unsigned long long currentIndex, // 新增参数：当前节点的索引，默认为1（根节点）
+    std::map<int, std::vector<std::pair<ScidxRBNode<T>*, unsigned long long>>>* depthNodesMap, // 新增参数：用于记录每个深度节点的索引
+    int times,
+    int levelsToTraverse,
+    float error_bound
+) {
+    if (currentNode == nullptr) {
+        return;
+    }
+
+
+    // If the interval intersects with the query interval, add it to the result
+    if (doIntervalsIntersectWithError(currentNode->interval, queryInterval, error_bound)) {
+        result.push_back(currentNode);
+        if (currentDepth == times * (levelsToTraverse-1 ) ) {
+            (*depthNodesMap)[currentDepth].emplace_back(currentNode, currentIndex); // 在这里记录
+        }
+    }
+
+    // 继续递归探索子树，同时更新深度和索引
+    if (currentNode->left != nullptr && currentNode->left->max_high >= queryInterval.low) {
+        queryHelperWithMap(currentNode->left, queryInterval, result, currentDepth + 1, currentIndex * 2, depthNodesMap, times, levelsToTraverse, error_bound);
+    }
+
+    if (currentNode->right != nullptr && currentNode->right->interval.low <= queryInterval.high) {
+        queryHelperWithMap(currentNode->right, queryInterval, result, currentDepth + 1, currentIndex * 2 + 1, depthNodesMap, times, levelsToTraverse, error_bound);
+    }
+}
+
+
 // Function to check if two intervals intersect
 template <typename T>
 bool doIntervalsIntersect(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2) {
     return (interval1.low <= interval2.high && interval1.high >= interval2.low);
+}
+
+template <typename T>
+bool doIntervalsIntersectWithError(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2, float error_bound) {
+    return ((interval1.low - error_bound) <= interval2.high && (interval1.high+ error_bound) >= interval2.low);
 }
 
 template <typename T>
@@ -410,6 +463,7 @@ std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int level
 }
 
 
+//get the last level nodes as the tree is a balance binary tree
 template <typename T>
 std::vector<ScidxRBNode<T>*> getLastLevelNodesIncludingNull(ScidxRBNode<T>* root) {
     if (!root) return {}; // If the tree is empty, return an empty vector

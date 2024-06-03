@@ -1,0 +1,3 @@
+[
+{ "rank":0, "start":"Sun_Jun_02_16:32:49_2024","ES_close_mus": 435, "ES_close":{"mus":435, "nCalls":11},"ES_AWD_mus": 595, "ES_AWD":{"mus":595, "nCalls":11},"ES_mus": 1258, "ES":{"mus":1258, "nCalls":11},"ES_meta2_mus": 209, "ES_meta2":{"mus":209, "nCalls":11},"ES_meta1_mus": 0, "ES_meta1":{"mus":0, "nCalls":11}, "databytes":0, "metadatabytes":0, "metametadatabytes":0, "transport_0":{"type":"File_POSIX", "wbytes":2456, "close":{"mus":45, "nCalls":1}, "write":{"mus":95, "nCalls":11}, "open":{"mus":163, "nCalls":1}}, "transport_1":{"type":"File_POSIX", "wbytes":13920, "close":{"mus":65, "nCalls":1}, "write":{"mus":59, "nCalls":44}, "open":{"mus":178, "nCalls":1}} }
+]
