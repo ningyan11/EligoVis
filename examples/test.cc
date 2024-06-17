@@ -54,15 +54,23 @@ ScidxInterval<T> generateRandomIntervalWithPercentage(T maxLow, T maxHigh) {
 }
 
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
-void compressTree(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
+void compressTree(std::vector<int> currentTypesLow, std::vector<int> currentTypesHigh, std::vector<int> currentTypesMaxHigh, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
 
 ScidxRBNode<float>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
 
 
-void computeTypeBuffer(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, std::vector<int>& allTreeTypesLow, std::vector<int>& allTreeTypesHigh, std::vector<int>& allTreeTypesMaxhigh);
+void computeTypeBuffer(
+    std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, 
+    float error_bound, size_t i, adios2::Engine& engine, adios2::IO& io,
+    std::vector<std::vector<int>>& allTreeTypesLow, 
+    std::vector<std::vector<int>>& allTreeTypesHigh, 
+    std::vector<std::vector<int>>& allTreeTypesMaxHigh
+);
 
-scidx::HuffmanTree* fullHuffman(std::vector<int>& allTreeTypes, adios2::Engine& engine, adios2::IO& io, const std::string& variableName);
-
+std::vector<scidx::HuffmanTree*> fullHuffman(const std::vector<std::vector<int>>& allTreeTypesLow,
+                                          const std::vector<std::vector<int>>& allTreeTypesHigh,
+                                          const std::vector<std::vector<int>>& allTreeTypesMaxHigh,
+                                          adios2::Engine& engine, adios2::IO& io);
 
 ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees);
 void queryAndConnectSubTree(
@@ -78,6 +86,14 @@ void queryAndConnectSubTree(
 
 
 int main(int argc, char *argv[]) {
+
+    // 在程序开始时清空文件
+    std::ofstream originalDataFile1("OutlayerMax.txt", std::ios_base::trunc);
+    originalDataFile1.close();
+    std::ofstream originalDataFile2("OutlayerMaxHighLeafNode.txt", std::ios_base::trunc);
+    originalDataFile2.close();
+    std::ofstream originalDataFile3("original_data.txt", std::ios_base::trunc);
+    originalDataFile3.close();
 
     // 创建 ADIOS2 对象
     adios2::ADIOS adios;
@@ -371,37 +387,33 @@ int main(int argc, char *argv[]) {
 
     std::vector<ScidxRBNode<float>*> compressedSubTrees; 
 
-    std::string maxFilename = "compressed_high.bin";
-    std::string leafMaxFilename = "compressed_max_high.bin";
-    std::string minFilename = "compressed_low.bin";
+    std::vector<std::vector<int>> allTreeTypesLow;
+    std::vector<std::vector<int>> allTreeTypesHigh;
+    std::vector<std::vector<int>> allTreeTypesMaxHigh;
 
-
-
-    std::vector<int> allTreeTypesLow;
-    std::vector<int> allTreeTypesHigh;
-    std::vector<int> allTreeTypesMaxHigh;
-    for (size_t i = 0; i < allSubTrees.size(); ++i) {
-        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTree = allSubTrees[i];
-        computeTypeBuffer(currentSubTree, error_bound, allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh);
-    }
-
-
-
-    scidx::HuffmanTree*  huffmanTreeLow = fullHuffman(allTreeTypesLow, bpWriter, iO, "fullHuffmanTreeHigh" );
-    scidx::HuffmanTree*  huffmanTreeHigh = fullHuffman(allTreeTypesHigh, bpWriter, iO, "fullHuffmanTreeLow" );
-    scidx::HuffmanTree*  huffmanTreeMaxHigh = fullHuffman(allTreeTypesMaxHigh, bpWriter, iO, "fullHuffmanTreeMaxHigh" );
-
-
-    //reconstruct all subTrees
-    for (size_t i = 0; i < allSubTrees.size(); ++i) {
-
-        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTree = allSubTrees[i];
-        compressTree(currentSubTree, error_bound,  bpWriter, iO, i, huffmanTreeLow, huffmanTreeHigh, huffmanTreeMaxHigh);
-        
-    }
-
+    bpWriter.BeginStep();
     
+    //对单个子树进行type计算，并将越界数据分别存入adios
+    for (size_t i = 0; i < allSubTrees.size(); ++i) {
+        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTree = allSubTrees[i];
+        computeTypeBuffer(currentSubTree, error_bound, i, bpWriter, iO, allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh);
+    }
+
+
+    std::vector<scidx::HuffmanTree*> huffmanTrees = fullHuffman(allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh, bpWriter, iO);
+
+    for (size_t i = 0; i < allTreeTypesLow.size(); ++i) {
+        std::vector<int> currentTypesLow = allTreeTypesLow[i];
+        std::vector<int> currentTypesHigh = allTreeTypesHigh[i];
+        std::vector<int> currentTypesMaxHigh = allTreeTypesMaxHigh[i];
+        compressTree(currentTypesLow, currentTypesHigh, currentTypesMaxHigh, error_bound,  bpWriter, iO, i, huffmanTrees[0], huffmanTrees[1], huffmanTrees[2]);
+
+    }
+    
+    bpWriter.EndStep();
     bpWriter.Close(); // 关闭写入引擎
+
+
 
     // 创建 IO 对象
     adios2::IO iORead = adios.DeclareIO("ReadData");
@@ -409,77 +421,37 @@ int main(int argc, char *argv[]) {
     // 打开引擎
     adios2::Engine bpReader = iORead.Open(filename, adios2::Mode::Read);
 
-    bpReader.BeginStep();
 
-    // 获取定义的变量
+    bpReader.BeginStep();
     adios2::Variable<unsigned char> fullHuffmanTreeHigh = iORead.InquireVariable<unsigned char>("fullHuffmanTreeHigh");
-
-
-    if (fullHuffmanTreeHigh) {
-        std::cout << "fullHuffmanTreeHigh found with size h1: " << fullHuffmanTreeHigh.Shape()[0] << std::endl;
-    } else {
-        std::cout << "fullHuffmanTreeHigh variable not found zzz" << std::endl;
-    }
-
-    bpReader.EndStep();  
-
-    bpReader.BeginStep();
-
     adios2::Variable<unsigned char> fullHuffmanTreeLow = iORead.InquireVariable<unsigned char>("fullHuffmanTreeLow");
-    if (fullHuffmanTreeLow) {
-        std::cout << "fullHuffmanTreeLow found with size: " << fullHuffmanTreeLow.Shape()[0] << std::endl;
-    } else {
-        std::cout << "fullHuffmanTreeLow variable not found czx" << std::endl;
-    }
-
-    bpReader.EndStep();  
-
-    bpReader.BeginStep();
-
-
     adios2::Variable<unsigned char> fullHuffmanTreeMaxHigh = iORead.InquireVariable<unsigned char>("fullHuffmanTreeMaxHigh");
-
-
-    // 检查变量是否存在并打印状态
-    if (fullHuffmanTreeMaxHigh) {
-        std::cout << "fullHuffmanTreeMaxHigh found with size: hh " << fullHuffmanTreeMaxHigh.Shape()[0] << std::endl;
-    } else {
-        std::cout << "fullHuffmanTreeMaxHigh variable not found uyuyd" << std::endl;
-    }
-
-    bpReader.EndStep();  
-
-    
-    
-    // 获取变量的大小
-    size_t varSizeLow = fullHuffmanTreeLow.Shape()[0];
+   
     size_t varSizeHigh = fullHuffmanTreeHigh.Shape()[0];
+    size_t varSizeLow = fullHuffmanTreeLow.Shape()[0];
     size_t varSizeMaxHigh = fullHuffmanTreeMaxHigh.Shape()[0];
 
-    // 分配足够的内存来存储数据
     std::vector<unsigned char> huffmanOutLow(varSizeLow);
     std::vector<unsigned char> huffmanOutHigh(varSizeHigh);
     std::vector<unsigned char> huffmanOutMaxHigh(varSizeMaxHigh);
 
-    // 读取数据
+
+    bpReader.Get(fullHuffmanTreeHigh, huffmanOutHigh.data(), adios2::Mode::Sync);  
     bpReader.Get(fullHuffmanTreeLow, huffmanOutLow.data(), adios2::Mode::Sync);
-    bpReader.Get(fullHuffmanTreeHigh, huffmanOutHigh.data(), adios2::Mode::Sync);
     bpReader.Get(fullHuffmanTreeMaxHigh, huffmanOutMaxHigh.data(), adios2::Mode::Sync);
+    
 
-    bpReader.EndStep();  
-
-
-
-    for (size_t i = 0; i < allSubTrees.size(); ++i) {
+    // 获取变量的大小
+   for (size_t i = 0; i < allSubTrees.size(); ++i) {
         std::vector<int> currentMap = eachMapOfSubTree[i];
         ScidxRBNode<float>* compressedRoot = decompressTree(bpReader, iORead, i,currentMap, error_bound, huffmanOutLow, huffmanOutHigh, huffmanOutMaxHigh);
         compressedSubTrees.push_back(compressedRoot);
     }
-
+    bpReader.EndStep();
     bpReader.Close();
 
-
-    std::cout << "Displaying All Compressed SubTrees:" << std::endl;
+   
+std::cout << "Displaying All Compressed SubTrees:" << std::endl;
     for (auto& subtreeRoot : compressedSubTrees) {
         
         ScidxRedBlackIntervalTree<float> tempTree;
@@ -512,11 +484,7 @@ int main(int argc, char *argv[]) {
         }
         */
         std::size_t originalResultCount = result.size();
-         
-        
-    
-    
-    
+            
     // random decompress
     //ScidxInterval<float> queryIntervalForTree = generateRandomInterval(maxLow, maxHigh);
     //std::cout << "query interval: [" << queryIntervalForTree.low << ", " << queryIntervalForTree.high << "]" << std::endl;
@@ -537,16 +505,10 @@ int main(int argc, char *argv[]) {
     std::size_t compressedResultCount = resultsOfQuery.size();
     std::size_t falsePositives = compressedResultCount - originalResultCount;
     double fpr = static_cast<double>(falsePositives) / compressedResultCount;
-    std::cout << "False Positive Rate (FPR): " << fpr << std::endl;
+    //std::cout << "False Positive Rate (FPR): " << fpr << std::endl;
 
 }
-
-    
-    
-
-
-
-    ScidxAVLIntervalTree<float> avlIntervalTree;
+ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
     {
@@ -558,8 +520,6 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
-
 
 void queryAndConnectSubTree(
     ScidxRedBlackIntervalTree<float>& tree,
@@ -576,7 +536,7 @@ void queryAndConnectSubTree(
 
     // 终止条件1: queryResult.second为空
     if (queryResult.second.empty()) {
-        std::cout << "Query result is empty, terminating recursion." << std::endl;
+        //std::cout << "Query result is empty, terminating recursion." << std::endl;
         return;
     }
 
@@ -634,8 +594,6 @@ void queryAndConnectSubTree(
 
 }
 
-
-
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result) {
     size_t byteLength = 0;
     size_t intArrayLength = intArray.size();
@@ -667,7 +625,6 @@ size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::
 
     return byteLength;
 }
-
 
 ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees) {
     if (compressedSubTrees.empty() || fullTreeVectorOfMap.empty()) return nullptr;
