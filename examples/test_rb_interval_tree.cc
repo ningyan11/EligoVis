@@ -54,12 +54,12 @@ ScidxInterval<T> generateRandomIntervalWithPercentage(T maxLow, T maxHigh) {
 }
 
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
-void compressTree(std::vector<int> currentTypesLow, std::vector<int> currentTypesHigh, std::vector<int> currentTypesMaxHigh, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
+//void compressTree(std::vector<int> currentTypesLow, std::vector<int> currentTypesHigh, std::vector<int> currentTypesMaxHigh, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
 
 ScidxRBNode<float>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
 
 
-void computeTypeBuffer(
+/*void computeTypeBuffer(
     std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, 
     float error_bound, size_t i, adios2::Engine& engine, adios2::IO& io,
     std::vector<std::vector<int>>& allTreeTypesLow, 
@@ -70,7 +70,7 @@ void computeTypeBuffer(
 std::vector<scidx::HuffmanTree*> fullHuffman(const std::vector<std::vector<int>>& allTreeTypesLow,
                                           const std::vector<std::vector<int>>& allTreeTypesHigh,
                                           const std::vector<std::vector<int>>& allTreeTypesMaxHigh,
-                                          adios2::Engine& engine, adios2::IO& io);
+                                          adios2::Engine& engine, adios2::IO& io);*/
 
 ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees);
 void queryAndConnectSubTree(
@@ -84,6 +84,17 @@ void queryAndConnectSubTree(
     float error_bound
 ) ;
 
+
+template <typename T>
+bool containsDuplicateValues(const std::vector<T>& vec) {
+    for (auto it = vec.begin(); it != vec.end(); ++it) {
+        auto count = std::count(vec.begin(), vec.end(), *it);
+        if (count > 1) {
+            return true;
+        }
+    }
+    return false;
+}
 
 int main(int argc, char *argv[]) {
 
@@ -199,6 +210,7 @@ int main(int argc, char *argv[]) {
     std::vector<ScidxInterval<float>> intervals;
 
     std::vector<ScidxInterval<float>> avlIntervals;
+    std::vector<float> all_lows;
 
     float global_min = std::numeric_limits<float>::max();
     float global_max = std::numeric_limits<float>::min();
@@ -224,7 +236,19 @@ int main(int argc, char *argv[]) {
 
         intervals.push_back(interval);
         avlIntervals.push_back(avlInterval);
+        all_lows.push_back(interval.low);
     }
+
+    if (containsDuplicateValues(all_lows))
+    {
+        std::cout << "multiple intervals have the same low end value" << std::endl;
+    }
+    else
+    {
+        std::cout << "all intervals have unique low end value" << std::endl;
+    }
+    
+    
     
 
     ScidxRedBlackIntervalTree<float> rbIntervalTree;
@@ -507,7 +531,7 @@ std::cout << "Displaying All Compressed SubTrees:" << std::endl;
     double fpr = static_cast<double>(falsePositives) / compressedResultCount;
     //std::cout << "False Positive Rate (FPR): " << fpr << std::endl;
 
-}
+}    
 ScidxAVLIntervalTree<float> avlIntervalTree;
 
     for (size_t i = 0; i < intervals.size(); i++)
@@ -517,6 +541,7 @@ ScidxAVLIntervalTree<float> avlIntervalTree;
     }
     std::cout << "AVL Interval Tree after insertions:" << std::endl;
     avlIntervalTree.display();
+    
 
     return 0;
 }

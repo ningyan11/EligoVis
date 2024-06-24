@@ -107,4 +107,10 @@ struct ScidxInterval {
     T high;
 };
 
+// Function to check if two intervals intersect
+template <typename T>
+bool doIntervalsIntersect(const ScidxInterval<T>& interval1, const ScidxInterval<T>& interval2) {
+    return (interval1.low <= interval2.high && interval1.high >= interval2.low);
+}
+
 #endif /* ----- #ifndef _SCIDX_DEFINES_H  ----- */

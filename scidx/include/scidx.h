@@ -25,14 +25,23 @@
 extern "C" {
 #endif
 
-void compressTree(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
+void compressTree(std::vector<int> currentTypesLow, std::vector<int> currentTypesHigh, std::vector<int> currentTypesMaxHigh, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
 
 ScidxRBNode<float>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
 
-void computeTypeBuffer(std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, float error_bound, std::vector<int>& allTreeTypesLow, std::vector<int>& allTreeTypesHigh, std::vector<int>& allTreeTypesMaxhigh);
+void computeTypeBuffer(
+    std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, 
+    float error_bound, size_t i, adios2::Engine& engine, adios2::IO& io,
+    std::vector<std::vector<int>>& allTreeTypesLow, 
+    std::vector<std::vector<int>>& allTreeTypesHigh, 
+    std::vector<std::vector<int>>& allTreeTypesMaxHigh
+);
 
-scidx::HuffmanTree* fullHuffman(std::vector<int>& allTreeTypes, adios2::Engine& engine, adios2::IO& io, const std::string& variableName);
 
+std::vector<scidx::HuffmanTree*> fullHuffman(const std::vector<std::vector<int>>& allTreeTypesLow,
+                                          const std::vector<std::vector<int>>& allTreeTypesHigh,
+                                          const std::vector<std::vector<int>>& allTreeTypesMaxHigh,
+                                          adios2::Engine& engine, adios2::IO& io);
 
 #ifdef __cplusplus
 }
