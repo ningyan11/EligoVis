@@ -1,7 +1,7 @@
 #!/bin/bash
 
 aclocal
-glibtoolize -f -c
+libtoolize -f -c
 autoconf
 autoheader
 automake -a

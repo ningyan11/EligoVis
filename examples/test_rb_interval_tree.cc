@@ -1,23 +1,16 @@
-
 #include <vector>
 #include <queue>
 #include <algorithm>
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
 #include <random>
-
+#include <adios2.h> 
+#include <scidx.h> 
 #include <scidx_block_min_max.h>
-
-#include <scidx.h>
-
 #include <scidx_Huffman.h>
 #include <scidx_rb_interval_tree.h>
 #include <scidx_avl_interval_tree.h>
-#include <adios2.h>
-
 // Random number generator
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -54,36 +47,22 @@ ScidxInterval<T> generateRandomIntervalWithPercentage(T maxLow, T maxHigh) {
 }
 
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result);
-//void compressTree(std::vector<int> currentTypesLow, std::vector<int> currentTypesHigh, std::vector<int> currentTypesMaxHigh, float error_bound, adios2::Engine& engine, adios2::IO& io, int step, scidx::HuffmanTree*  fullHuffmanTreeLow, scidx::HuffmanTree*  fullHuffmanTreeHigh, scidx::HuffmanTree*  fullHuffmanTreeMaxHigh);
+//ScidxRBNode<double>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
 
-ScidxRBNode<float>* decompressTree(adios2::Engine& engine, adios2::IO& io, int step, std::vector<int>& firstVector, float error_bound, std::vector<unsigned char> huffmanOutLow, std::vector<unsigned char> huffmanOutHigh, std::vector<unsigned char> huffmanOutMaxHigh);
+// ScidxRBNode<double>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<double>*>& compressedSubTrees); // BOOL change
+ScidxRBNode<double>* attachSubTreesBFS(const std::vector<bool>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<double>*>& compressedSubTrees);
 
-
-/*void computeTypeBuffer(
-    std::vector<std::vector<ScidxRBNode<float>*>>& singleSubTree, 
-    float error_bound, size_t i, adios2::Engine& engine, adios2::IO& io,
-    std::vector<std::vector<int>>& allTreeTypesLow, 
-    std::vector<std::vector<int>>& allTreeTypesHigh, 
-    std::vector<std::vector<int>>& allTreeTypesMaxHigh
-);
-
-std::vector<scidx::HuffmanTree*> fullHuffman(const std::vector<std::vector<int>>& allTreeTypesLow,
-                                          const std::vector<std::vector<int>>& allTreeTypesHigh,
-                                          const std::vector<std::vector<int>>& allTreeTypesMaxHigh,
-                                          adios2::Engine& engine, adios2::IO& io);*/
-
-ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees);
 void queryAndConnectSubTree(
-    ScidxRedBlackIntervalTree<float>& tree,
-    const std::vector<ScidxRBNode<float>*>& compressedSubTrees,
-    const std::vector<int>& allSubTreeMap,
-    const ScidxInterval<float>& queryInterval,
+    ScidxRedBlackIntervalTree<double>& tree,
+    const std::vector<ScidxRBNode<double>*>& compressedSubTrees,
+    // const std::vector<int>& allSubTreeMap, // BOOL change
+    const std::vector<bool>& allSubTreeMap,
+    const ScidxInterval<double>& queryInterval,
     int levelsToTraverse,
     int times,
-    std::vector<ScidxRBNode<float>*>& queryResults,
+    std::vector<ScidxRBNode<double>*>& queryResults,
     float error_bound
-) ;
-
+);
 
 template <typename T>
 bool containsDuplicateValues(const std::vector<T>& vec) {
@@ -97,311 +76,203 @@ bool containsDuplicateValues(const std::vector<T>& vec) {
 }
 
 int main(int argc, char *argv[]) {
+    std::string inputFileName;
+    std::string variableName;
+    std::string variableType;
 
-    // 在程序开始时清空文件
-    std::ofstream originalDataFile1("OutlayerMax.txt", std::ios_base::trunc);
-    originalDataFile1.close();
-    std::ofstream originalDataFile2("OutlayerMaxHighLeafNode.txt", std::ios_base::trunc);
-    originalDataFile2.close();
-    std::ofstream originalDataFile3("original_data.txt", std::ios_base::trunc);
-    originalDataFile3.close();
-
-    // 创建 ADIOS2 对象
-    adios2::ADIOS adios;
-
-    // 创建 IO 对象
-    adios2::IO iO = adios.DeclareIO("WriteData");
-
-    std::string filename = "output.bp";
-    adios2::Engine bpWriter = iO.Open(filename, adios2::Mode::Write);
-
-
-    char *inputFileName = NULL;
-    size_t nDim = 0;
-    std::vector<size_t> dataShape;
     std::vector<size_t> blockShape;
-    for (int i = 0; i < argc; i++)
-    {
+    for (int i = 0; i < argc; i++) {
         std::string arg = argv[i];
-        if (arg == "--input_file")
-        {
-            if (i+1 < argc)
-            {
+        if (arg == "--input_file") {
+            if (i+1 < argc) {
                 inputFileName = argv[i+1];
-            }
-            else
-            {
-                std::cerr << "--input option requires one argument." << std::endl;
+            } else {
+                std::cerr << "--input_file option requires one argument." << std::endl;
                 return 1;
             }            
-        }
-        else if (arg == "--dimensions")
-        {
-            if (i+1 < argc)
-            {
-                std::stringstream ss_dim(argv[i+1]);
-                ss_dim >> nDim;
-            }
-            else
-            {
-                std::cerr << "--dimensions option requires one argument." << std::endl;
+        } else if (arg == "--variable_name") {
+            if (i+1 < argc) {
+                variableName = argv[i+1];
+            } else {
+                std::cerr << "--variable_name option requires one argument." << std::endl;
                 return 1;
-            } 
+            }             
         }
-        else if (arg == "--data_shape")
-        {
-            if (nDim)
-            {
-                if ((int)(i+nDim) < argc)
-                {
-                    for (size_t j = i+1; j < i+1+nDim; j++)
-                    {
-                        dataShape.push_back(atoi(argv[j]));
-                    }
-                    
+    }
+
+    std::cout << inputFileName << "," << variableName << std::endl;
+
+    adios2::ADIOS adios;
+    adios2::IO reader_io = adios.DeclareIO("ReaderIO");
+    adios2::Engine reader_engine = reader_io.Open(inputFileName, adios2::Mode::Read);
+    size_t steps = reader_engine.Steps();
+    
+    auto var = reader_io.InquireVariable(variableName);
+    variableType = reader_io.VariableType(variableName);
+
+    std::cout << "variableType: " << variableType << std::endl;
+    std::cout << "steps " << steps << std::endl;
+            
+    ScidxRedBlackIntervalTree<double> rbIntervalTree;
+
+        size_t blockID = 0;
+        std::vector<double> block_mins;
+        std::vector<double> block_maxs;
+
+        
+        for (size_t step = 1; step < steps; step++) {
+            auto blocksInfo = reader_engine.AllStepsBlocksInfo(var).at(step);
+            for (const auto &info : blocksInfo) {
+                size_t blockSize = 1;
+
+                
+                for (size_t i = 0; i < info.Count.size(); i++) {
+                    blockSize *= info.Count[i];
                 }
-                else
-                {
-                    std::cerr << "--data_shape option requires [# of dimensions] argument." << std::endl;
-                    return 1;
-                }  
-            }
-            else
-            {
-                std::cerr << "# of dimensions must be greater than 0." << std::endl;
-                return 1;                
-            }
-        }
-        else if (arg == "--block_shape")
-        {
-            if (nDim)
-            {
-                if ((int)(i+nDim) < argc)
-                {
-                    for (size_t j = i+1; j < i+1+nDim; j++)
-                    {
-                        blockShape.push_back(atoi(argv[j]));
-                    }
-                    
-                }
-                else
-                {
-                    std::cerr << "--blockShape option requires [# of dimensions] argument." << std::endl;
-                    return 1;
-                }  
+                          
+                std::vector<double> blockData(blockSize);
+                var.SetSelection({info.Start, info.Count});
+                var.SetStepSelection({step, 1});
+                reader_engine.Get(var, blockData.data(), adios2::Mode::Sync);
+                auto minmax = minmax_element(blockData.begin(), blockData.end());
+                block_mins.push_back(*minmax.first);
+                block_maxs.push_back(*minmax.second);
+                blockID++;
             }
         }
-        
-    }
 
-    size_t nElem;
-    int status;
-    float *dataBuffer = scidx_readFloatData(inputFileName, &nElem, &status);
+        std::cout << blockID << "," << variableName << std::endl;
+        std::vector<ScidxInterval<double>> intervals;
 
-    std::cout << "read in " << nElem << " data elements." << std::endl;
+       
 
-    std::vector<float> data{dataBuffer, dataBuffer+nElem};
-
-    std::vector<std::vector<float>> blockMinMax = obtainBlockMinMax(data, dataShape, blockShape);
-
-    //std::vector<std::vector<float>> sortedBlockMinMax = sortResultsByMax(blockMinMax);
-    
-	
-    std::vector<ScidxInterval<float>> intervals;
-
-    std::vector<ScidxInterval<float>> avlIntervals;
-    std::vector<float> all_lows;
-
-    float global_min = std::numeric_limits<float>::max();
-    float global_max = std::numeric_limits<float>::min();
-    for (size_t i = 0; i < blockMinMax.size(); i++)
-    {
-        if (blockMinMax[i][0] < global_min)
-        {
-            global_min = blockMinMax[i][0];
+        double global_min = std::numeric_limits<double>::max();
+        double global_max = std::numeric_limits<double>::min();
+        for (size_t i = 0; i < block_mins.size(); i++) {
+            if (block_mins[i] < global_min) {
+                global_min = block_mins[i];
+            }
+            if (block_maxs[i] > global_max) {
+                global_max = block_maxs[i];
+            }
+            
+            ScidxInterval<double> interval;
+            interval.low = block_mins[i];
+            interval.high = block_maxs[i];
+            intervals.push_back(interval);
         }
-        if (blockMinMax[i][1] > global_max)
-        {
-            global_max = blockMinMax[i][1];
-        }        
-        
-        ScidxInterval<float> interval;
-        ScidxInterval<float> avlInterval;
 
-        interval.low = blockMinMax[i][0];
-        interval.high = blockMinMax[i][1];
 
-        avlInterval.low = blockMinMax[i][0];
-        avlInterval.high = blockMinMax[i][1];
 
-        intervals.push_back(interval);
-        avlIntervals.push_back(avlInterval);
-        all_lows.push_back(interval.low);
-    }
+        std::vector<ScidxInterval<double>> zeroLowIntervalList;
 
-    if (containsDuplicateValues(all_lows))
-    {
-        std::cout << "multiple intervals have the same low end value" << std::endl;
-    }
-    else
-    {
-        std::cout << "all intervals have unique low end value" << std::endl;
-    }
-    
-    
-    
+        std::cout << inputFileName << "," << variableName << std::endl;
 
-    ScidxRedBlackIntervalTree<float> rbIntervalTree;
+        std::cout << intervals.size() << "," << variableName << std::endl;
 
-    for (size_t i = 0; i < intervals.size(); i++)
-    {
-        std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
-        rbIntervalTree.insert(intervals[i], i);
-        
-    }
+        for (size_t i = 0; i < intervals.size(); i++) {
+            std::cout << i << " [" << intervals[i].low << " " << intervals[i].high << "]" << std::endl;
+            if (intervals[i].low == 0) {
+                zeroLowIntervalList.push_back(intervals[i]);
+                continue;
+            }
+            
+            rbIntervalTree.insert(intervals[i], i);
+        }
 
-    std::cout << "RB Interval Tree after insertions:" << std::endl;
-    rbIntervalTree.display();
+        std::cout << "Red-Black Interval Tree after insertions:" << std::endl;
+        // rbIntervalTree.display();
+
+     
+
+        std::cout << "zeroLowIntervalList size" << zeroLowIntervalList.size() << std::endl;
+
+        /*for (size_t i = 0; i < zeroLowIntervalList.size(); i++) {
+            std::cout << " [" << zeroLowIntervalList[i].low << " " << zeroLowIntervalList[i].high << "]" << std::endl;
+        }*/
+
+    std::cout << "After build the tree " << std::endl;
+
+    // 创建 IO 对象
+    std::cout << "Declaring IO object" << std::endl;
+    adios2::IO iO = adios.DeclareIO("WriteData");
+    std::string filename = "output.bp";
+    std::cout << "Opening file " << filename << std::endl;
+    adios2::Engine bpWriter = iO.Open(filename, adios2::Mode::Write);
+    std::cout << "File opened successfully" << std::endl;
 
     int levelsToTraverse = 5;
+    std::vector<bool> allSubTreeMap = getAllSubTreesMap(rbIntervalTree, levelsToTraverse); // BOOL change
+    std::cout << "Finished getAllSubTreesMap" << std::endl;
 
-    std::vector<int> allSubTreeMap = getAllSubTreesMap(rbIntervalTree, levelsToTraverse);
-
-    std::vector<std::vector<std::vector<ScidxRBNode<float>*>>> allSubTrees;
-    std::vector<std::vector<ScidxRBNode<float>*>> firstSubTreeNodesInLevels;
+    std::vector<std::vector<std::vector<ScidxRBNode<double>*>>> allSubTrees;
+    std::vector<std::vector<ScidxRBNode<double>*>> firstSubTreeNodesInLevels;
     std::vector<size_t> sizesOfBigMap;
     std::vector<int> combinedVector;
     std::vector<int> firstVectorOfMap;
-    
+
     levelOrderTraversal(rbIntervalTree.getRoot(), levelsToTraverse, firstSubTreeNodesInLevels, firstVectorOfMap);
+    std::cout << "Finished levelOrderTraversal" << std::endl;
+    
     allSubTrees.push_back(firstSubTreeNodesInLevels);
     sizesOfBigMap.push_back(firstVectorOfMap.size());
     combinedVector.insert(combinedVector.end(), firstVectorOfMap.begin(), firstVectorOfMap.end());
 
-
-    std::vector<ScidxRBNode<float>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
-
-    std::vector<ScidxRBNode<float>*> rootsOfNewSubTrees;
-
+    std::vector<ScidxRBNode<double>*>& lastLevelOfFirstSubTree = firstSubTreeNodesInLevels.back();
+    std::vector<ScidxRBNode<double>*> rootsOfNewSubTrees;
     rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfFirstSubTree.begin(), lastLevelOfFirstSubTree.end());
 
-    while (!rootsOfNewSubTrees.empty())
-    {
-        
-        ScidxRBNode<float>* node = rootsOfNewSubTrees.front();
+    while (!rootsOfNewSubTrees.empty()) {
+        ScidxRBNode<double>* node = rootsOfNewSubTrees.front();
         rootsOfNewSubTrees.erase(rootsOfNewSubTrees.begin());  
 
-        if (node->left == nullptr && node->right == nullptr)
-        {
+        if (node->left == nullptr && node->right == nullptr) {
             continue;
         }
         
-
-        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTreeNodesInLevels;
+        std::vector<std::vector<ScidxRBNode<double>*>> currentSubTreeNodesInLevels;
         std::vector<int> currentSubTreeVectorOfMap;
 
-        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels, currentSubTreeVectorOfMap); 
+        levelOrderTraversal(node, levelsToTraverse, currentSubTreeNodesInLevels, currentSubTreeVectorOfMap);
+        
         sizesOfBigMap.push_back(currentSubTreeVectorOfMap.size());
         combinedVector.insert(combinedVector.end(), currentSubTreeVectorOfMap.begin(), currentSubTreeVectorOfMap.end());
- 
+        
         allSubTrees.push_back(currentSubTreeNodesInLevels);
 
         //level of subtree is smaller than levelsToTraverse
-        if(currentSubTreeNodesInLevels.size() < levelsToTraverse){
+        if (currentSubTreeNodesInLevels.size() < levelsToTraverse) {
             continue;
         }
 
-        std::vector<ScidxRBNode<float>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
-
+        std::vector<ScidxRBNode<double>*>& lastLevelOfCurrentSubTree = currentSubTreeNodesInLevels.back();
         rootsOfNewSubTrees.insert(rootsOfNewSubTrees.end(), lastLevelOfCurrentSubTree.begin(), lastLevelOfCurrentSubTree.end());
-
     }
 
-    for (size_t i = 0; i < allSubTrees.size(); i++)
-    {
+    for (size_t i = 0; i < allSubTrees.size(); i++) {
         std::cout << "Subtree #" << i << ":" << std::endl;
-        for (size_t j = 0; j < allSubTrees[i].size(); j++)
-        {
+        for (size_t j = 0; j < allSubTrees[i].size(); j++) {
             std::cout << "    level #" << j << ":" << std::endl;
-            for (size_t k = 0; k < allSubTrees[i][j].size(); k++)
-            {
+            for (size_t k = 0; k < allSubTrees[i][j].size(); k++) {
                 std::cout << "        " << "[" << allSubTrees[i][j][k]->interval.low << ", " << allSubTrees[i][j][k]->interval.high << "]" << std::endl;
             }
-            
         }
-        
     }
-
 
     float error_bound = 1E3;
     std::vector<int> mergedCompressedTypesLow;
 
-    /* for (size_t i = 0; i < allSubTrees.size(); i++)
-    {
-        std::vector<std::vector<ScidxNode<float>*>> curSubTree = allSubTrees[i];
-         for (size_t m = 0; m < curAllCompressedType.size(); ++m) {
-            for (size_t n = 0; n < curAllCompressedType[m].size(); ++n) {
-                std::cout << curAllCompressedType[m][n] << " ";
-            }
-        std::cout << std::endl;
-        }
-
-        if (!curAllCompressedType.empty()){
-            mergedCompressedTypesLow.insert(mergedCompressedTypesLow.end(), curAllCompressedType[0].begin(), curAllCompressedType[0].end());        
-        }
-        
-    } 
-
-    //mainBuffer for all encode subtrees
-    std::vector<unsigned char> mainBuffer;
-
-    //size of every encoded subtree
-    std::vector<size_t> encodedSizes;
-
-    
-    //init huffmanttree for all data
-    unsigned char *treeBuffer;
-    size_t treeBufferSize;
-    //init
-    free(treeBuffer);
-
-   
-
-    // write size to file
-    std::ofstream outFile("encoded_sizes.bin", std::ios::binary);
-    for (size_t size : encodedSizes) {
-        outFile.write(reinterpret_cast<char*>(&size), sizeof(size_t));
-    }
-    outFile.close();
-    
-    */
-
-    //reconstruct the first subTree and display it
-    /*std::vector<std::vector<ScidxRBNode<float>*>> firstrbSubTree = allSubTrees[0];
-    size_t firstStartIndex = 0;
-    size_t firstVectorSize = sizesOfBigMap[0];
-    std::vector<int> firstVector(combinedVector.begin() + firstStartIndex, combinedVector.begin() + firstStartIndex + firstVectorSize);
-    ScidxRBNode<float>*  fistSubTree = compressTree(firstrbSubTree, error_bound, firstVector);
-    ScidxRedBlackIntervalTree<float> tree;
-    tree.setRoot(fistSubTree);
-    tree.display(); */
-
-
-
-
-
     std::vector<std::vector<int>> eachMapOfSubTree; 
     size_t startIndex = 0; 
     for (size_t size : sizesOfBigMap) {
-            if (startIndex + size <= combinedVector.size()) {
-                
-                std::vector<int> subVector(combinedVector.begin() + startIndex, combinedVector.begin() + startIndex + size);
-                eachMapOfSubTree.push_back(subVector);
-                startIndex += size; 
-            } else {
-                std::cerr << "Error: The sizes in sizesOfBigMap exceed the size of combinedVector." << std::endl;
-                break;
-            }
+        if (startIndex + size <= combinedVector.size()) {
+            std::vector<int> subVector(combinedVector.begin() + startIndex, combinedVector.begin() + startIndex + size);
+            eachMapOfSubTree.push_back(subVector);
+            startIndex += size; 
+        } else {
+            std::cerr << "Error: The sizes in sizesOfBigMap exceed the size of combinedVector." << std::endl;
+            break;
+        }
     }
 
     if (allSubTrees.size() != eachMapOfSubTree.size()) {
@@ -409,7 +280,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    std::vector<ScidxRBNode<float>*> compressedSubTrees; 
+    std::vector<ScidxRBNode<double>*> compressedSubTrees; 
 
     std::vector<std::vector<int>> allTreeTypesLow;
     std::vector<std::vector<int>> allTreeTypesHigh;
@@ -419,10 +290,9 @@ int main(int argc, char *argv[]) {
     
     //对单个子树进行type计算，并将越界数据分别存入adios
     for (size_t i = 0; i < allSubTrees.size(); ++i) {
-        std::vector<std::vector<ScidxRBNode<float>*>> currentSubTree = allSubTrees[i];
-        computeTypeBuffer(currentSubTree, error_bound, i, bpWriter, iO, allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh);
+        std::vector<std::vector<ScidxRBNode<double>*>> currentSubTree = allSubTrees[i];
+        computeTypeBuffer<double>(currentSubTree, error_bound, i, bpWriter, iO, allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh);
     }
-
 
     std::vector<scidx::HuffmanTree*> huffmanTrees = fullHuffman(allTreeTypesLow, allTreeTypesHigh, allTreeTypesMaxHigh, bpWriter, iO);
 
@@ -430,14 +300,11 @@ int main(int argc, char *argv[]) {
         std::vector<int> currentTypesLow = allTreeTypesLow[i];
         std::vector<int> currentTypesHigh = allTreeTypesHigh[i];
         std::vector<int> currentTypesMaxHigh = allTreeTypesMaxHigh[i];
-        compressTree(currentTypesLow, currentTypesHigh, currentTypesMaxHigh, error_bound,  bpWriter, iO, i, huffmanTrees[0], huffmanTrees[1], huffmanTrees[2]);
-
+        compressTree<double>(currentTypesLow, currentTypesHigh, currentTypesMaxHigh, error_bound, bpWriter, iO, i, huffmanTrees[0], huffmanTrees[1], huffmanTrees[2]);
     }
     
     bpWriter.EndStep();
     bpWriter.Close(); // 关闭写入引擎
-
-
 
     // 创建 IO 对象
     adios2::IO iORead = adios.DeclareIO("ReadData");
@@ -445,12 +312,11 @@ int main(int argc, char *argv[]) {
     // 打开引擎
     adios2::Engine bpReader = iORead.Open(filename, adios2::Mode::Read);
 
-
     bpReader.BeginStep();
     adios2::Variable<unsigned char> fullHuffmanTreeHigh = iORead.InquireVariable<unsigned char>("fullHuffmanTreeHigh");
     adios2::Variable<unsigned char> fullHuffmanTreeLow = iORead.InquireVariable<unsigned char>("fullHuffmanTreeLow");
     adios2::Variable<unsigned char> fullHuffmanTreeMaxHigh = iORead.InquireVariable<unsigned char>("fullHuffmanTreeMaxHigh");
-   
+
     size_t varSizeHigh = fullHuffmanTreeHigh.Shape()[0];
     size_t varSizeLow = fullHuffmanTreeLow.Shape()[0];
     size_t varSizeMaxHigh = fullHuffmanTreeMaxHigh.Shape()[0];
@@ -459,105 +325,57 @@ int main(int argc, char *argv[]) {
     std::vector<unsigned char> huffmanOutHigh(varSizeHigh);
     std::vector<unsigned char> huffmanOutMaxHigh(varSizeMaxHigh);
 
-
     bpReader.Get(fullHuffmanTreeHigh, huffmanOutHigh.data(), adios2::Mode::Sync);  
     bpReader.Get(fullHuffmanTreeLow, huffmanOutLow.data(), adios2::Mode::Sync);
     bpReader.Get(fullHuffmanTreeMaxHigh, huffmanOutMaxHigh.data(), adios2::Mode::Sync);
-    
 
     // 获取变量的大小
-   for (size_t i = 0; i < allSubTrees.size(); ++i) {
+    for (size_t i = 0; i < allSubTrees.size(); ++i) {
         std::vector<int> currentMap = eachMapOfSubTree[i];
-        ScidxRBNode<float>* compressedRoot = decompressTree(bpReader, iORead, i,currentMap, error_bound, huffmanOutLow, huffmanOutHigh, huffmanOutMaxHigh);
+        ScidxRBNode<double>* compressedRoot = decompressTree<double>(bpReader, iORead, i, currentMap, error_bound, huffmanOutLow, huffmanOutHigh, huffmanOutMaxHigh);
         compressedSubTrees.push_back(compressedRoot);
     }
     bpReader.EndStep();
     bpReader.Close();
 
-   
-std::cout << "Displaying All Compressed SubTrees:" << std::endl;
+    std::cout << "Displaying All Compressed SubTrees:" << std::endl;
     for (auto& subtreeRoot : compressedSubTrees) {
-        
-        ScidxRedBlackIntervalTree<float> tempTree;
-        tempTree.setRoot(subtreeRoot); 
-        tempTree.display(); 
-        std::cout << "----------" << std::endl; 
+        ScidxRedBlackIntervalTree<double> tempTree;
+        tempTree.setRoot(subtreeRoot);
+        tempTree.display();
+        std::cout << "----------" << std::endl;
     }
 
-    
-    ScidxRBNode<float>* finalRoot = attachSubTreesBFS(allSubTreeMap, compressedSubTrees);
-    ScidxRedBlackIntervalTree<float> finalTree; 
+    ScidxRBNode<double>* finalRoot = attachSubTreesBFS(allSubTreeMap, compressedSubTrees);
+    ScidxRedBlackIntervalTree<double> finalTree;
     finalTree.setRoot(finalRoot);
     std::cout << "reconstruct Tree" << std::endl;
     finalTree.display();
 
+    //std::vector<ScidxRBNode<double>*> result = rbIntervalTree.query(queryIntervalForTree);
 
-    const int numberQueryOfIntervals = 1000;
-    const float maxLow = global_min;
-    const float maxHigh = global_max;
-
-   for (size_t i = 0; i < numberQueryOfIntervals; i++)
-    {
-        ScidxInterval<float> queryIntervalForTree = generateRandomIntervalWithPercentage(maxLow, maxHigh);
-        //std::cout << "query interval: [" << queryIntervalForTree.low << ", " << queryIntervalForTree.high << "]" << std::endl;
-        std::vector<ScidxRBNode<float>*> result = rbIntervalTree.query(queryIntervalForTree);
-        /*std::cout << "overlapped intervals: " << std::endl;
-        for (size_t j = 0; j < result.size(); j++)
-        {
-            std::cout << "    [" << result[j]->interval.low << ", " << result[j]->interval.high << "] (id: " << result[j]->id << ")" << std::endl;
-        }
-        */
-        std::size_t originalResultCount = result.size();
-            
-    // random decompress
-    //ScidxInterval<float> queryIntervalForTree = generateRandomInterval(maxLow, maxHigh);
-    //std::cout << "query interval: [" << queryIntervalForTree.low << ", " << queryIntervalForTree.high << "]" << std::endl;
-        
-    ScidxRBNode<float>* root = compressedSubTrees[0];
-    ScidxRedBlackIntervalTree<float> firstRbIntervalTree;
+    ScidxRBNode<double>* root = compressedSubTrees[0];
+    ScidxRedBlackIntervalTree<double> firstRbIntervalTree;
     firstRbIntervalTree.setRoot(compressedSubTrees[0]);
 
-    std::vector<ScidxRBNode<float>*> resultsOfQuery;
-    queryAndConnectSubTree(firstRbIntervalTree, compressedSubTrees, allSubTreeMap, queryIntervalForTree, levelsToTraverse, 1, resultsOfQuery, error_bound );
-    /*for (size_t k = 0; k < resultsOfQuery.size(); k++)
-        {
-            std::cout << "    [" << resultsOfQuery[k]->interval.low << ", " << resultsOfQuery[k]->interval.high << "] (id: " << resultsOfQuery[k]->id << ")" << std::endl;
-    }
-
-    firstRbIntervalTree.display();
-    */
-    std::size_t compressedResultCount = resultsOfQuery.size();
-    std::size_t falsePositives = compressedResultCount - originalResultCount;
-    double fpr = static_cast<double>(falsePositives) / compressedResultCount;
-    //std::cout << "False Positive Rate (FPR): " << fpr << std::endl;
-
-}    
-ScidxAVLIntervalTree<float> avlIntervalTree;
-
-    for (size_t i = 0; i < intervals.size(); i++)
-    {
-        //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
-        avlIntervalTree.insertNode(i, intervals[i]);
-    }
-    std::cout << "AVL Interval Tree after insertions:" << std::endl;
-    avlIntervalTree.display();
-    
+    std::vector<ScidxRBNode<double>*> resultsOfQuery;
+    //queryAndConnectSubTree(firstRbIntervalTree, compressedSubTrees, allSubTreeMap, queryIntervalForTree, levelsToTraverse, 1, resultsOfQuery, error_bound);
 
     return 0;
 }
 
 void queryAndConnectSubTree(
-    ScidxRedBlackIntervalTree<float>& tree,
-    const std::vector<ScidxRBNode<float>*>& compressedSubTrees,
-    const std::vector<int>& allSubTreeMap,
-    const ScidxInterval<float>& queryInterval,
+    ScidxRedBlackIntervalTree<double>& tree,
+    const std::vector<ScidxRBNode<double>*>& compressedSubTrees,
+    const std::vector<bool>& allSubTreeMap, // BOOL change
+    const ScidxInterval<double>& queryInterval,
     int levelsToTraverse,
     int times,
-    std::vector<ScidxRBNode<float>*>& queryResults,
-    float error_bound 
+    std::vector<ScidxRBNode<double>*>& queryResults,
+    float error_bound
 ) {
     auto queryResult = tree.queryWithMap(queryInterval, times, levelsToTraverse, error_bound);
-    queryResults = queryResult.first; 
+    queryResults = queryResult.first;
 
     // 终止条件1: queryResult.second为空
     if (queryResult.second.empty()) {
@@ -586,23 +404,21 @@ void queryAndConnectSubTree(
     std::cout << "The depth of the last layer in this tree: " << maxDepth << std::endl;
 
     for (const auto& nodeIndexPair : nodesAndIndicesAtLastLayer) {
-        ScidxRBNode<float>* node = nodeIndexPair.first; // 节点指针
+        ScidxRBNode<double>* node = nodeIndexPair.first; // 节点指针
         unsigned long long index = nodeIndexPair.second; // 节点在其层中的索引
 
         // 计算实际在allSubTreeMap中的位置
         unsigned long long realIndex = index - std::pow(2, maxDepth - 1);
-        if (realIndex < allSubTreeMap.size() && allSubTreeMap[realIndex] == 1) {
-            int countOfOne = std::count(allSubTreeMap.begin(), allSubTreeMap.begin() + realIndex + 1, 1) ;
+        if (realIndex < allSubTreeMap.size() && allSubTreeMap[realIndex] == true) { // BOOL change
+            int countOfOne = std::count(allSubTreeMap.begin(), allSubTreeMap.begin() + realIndex + 1, 1);
 
+            // 终止条件4: compressedSubTrees中值取完
+            if (compressedSubTrees.empty() || countOfOne > compressedSubTrees.size()) {
+                std::cout << "Compressed sub-trees are exhausted, terminating recursion." << std::endl;
+                return;
+            }
 
-        // 终止条件4: compressedSubTrees中值取完
-        if (compressedSubTrees.empty() || countOfOne > compressedSubTrees.size()) {
-            std::cout << "Compressed sub-trees are exhausted, terminating recursion." << std::endl;
-            return;
-        }
-
-
-            ScidxRBNode<float>* currentSubTreeInAll = compressedSubTrees[countOfOne - 1];
+            ScidxRBNode<double>* currentSubTreeInAll = compressedSubTrees[countOfOne - 1];
 
             // 衔接子树
             if (currentSubTreeInAll->left) {
@@ -616,7 +432,6 @@ void queryAndConnectSubTree(
             queryAndConnectSubTree(tree, compressedSubTrees, allSubTreeMap, queryInterval, levelsToTraverse, times + 1, queryResults, error_bound);
         }
     }
-
 }
 
 size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::vector<unsigned char>& result) {
@@ -651,38 +466,35 @@ size_t convertIntArray2ByteArray_fast_1b(const std::vector<int>& intArray, std::
     return byteLength;
 }
 
-ScidxRBNode<float>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<float>*>& compressedSubTrees) {
+// ScidxRBNode<double>* attachSubTreesBFS(const std::vector<int>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<double>*>& compressedSubTrees) { // BOOL change
+ScidxRBNode<double>* attachSubTreesBFS(const std::vector<bool>& fullTreeVectorOfMap, const std::vector<ScidxRBNode<double>*>& compressedSubTrees) {
     if (compressedSubTrees.empty() || fullTreeVectorOfMap.empty()) return nullptr;
 
-    ScidxRBNode<float>* root = compressedSubTrees[0];
+    ScidxRBNode<double>* root = compressedSubTrees[0];
 
     size_t mapIndex = 0; 
     size_t subTreeIndex = 1; 
 
     while (mapIndex < fullTreeVectorOfMap.size()) {
-       
-        std::vector<ScidxRBNode<float>*> currentLastLevelNodes = getLastLevelNodesIncludingNull(root);   
+        std::vector<ScidxRBNode<double>*> currentLastLevelNodes = getLastLevelNodesIncludingNull(root);
 
-        for (ScidxRBNode<float>* node : currentLastLevelNodes) {
-      
-            if (node != nullptr && fullTreeVectorOfMap[mapIndex] == 1 && subTreeIndex < compressedSubTrees.size()) {
-
+        for (ScidxRBNode<double>* node : currentLastLevelNodes) {
+            // if (node != nullptr && fullTreeVectorOfMap[mapIndex] == 1 && subTreeIndex < compressedSubTrees.size()) { // BOOL change
+            if (node != nullptr && fullTreeVectorOfMap[mapIndex] == true && subTreeIndex < compressedSubTrees.size()) {
                 // attach subTree
-                ScidxRBNode<float>* subTreeRoot = compressedSubTrees[subTreeIndex++];
-            
-               if(subTreeRoot->left != nullptr){
+                ScidxRBNode<double>* subTreeRoot = compressedSubTrees[subTreeIndex++];
+
+                if (subTreeRoot->left != nullptr) {
                     node->left = subTreeRoot->left;
-               }
-               if(subTreeRoot->right != nullptr){
-              
+                }
+                if (subTreeRoot->right != nullptr) {
                     node->right = subTreeRoot->right;
-               }
-            
+                }
             }
-            mapIndex++; 
-        }  
-        
-        if (mapIndex >= fullTreeVectorOfMap.size()) break; 
+            mapIndex++;
+        }
+
+        if (mapIndex >= fullTreeVectorOfMap.size()) break;
     }
     return root;
 }

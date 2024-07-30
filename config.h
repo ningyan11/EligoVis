@@ -2,72 +2,72 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-/* #undef HAVE_DLFCN_H */
+#define HAVE_DLFCN_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-/* #undef HAVE_FCNTL_H */
+#define HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-/* #undef HAVE_INTTYPES_H */
+#define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <limits.h> header file. */
-/* #undef HAVE_LIMITS_H */
+#define HAVE_LIMITS_H 1
 
-/* Define to 1 if your system has a GNU libc compatible 'malloc' function, and
+/* Define to 1 if your system has a GNU libc compatible `malloc' function, and
    to 0 otherwise. */
-#define HAVE_MALLOC 0
+#define HAVE_MALLOC 1
 
 /* Define to 1 if you have the <malloc.h> header file. */
-/* #undef HAVE_MALLOC_H */
+#define HAVE_MALLOC_H 1
 
-/* Define to 1 if you have the 'memchr' function. */
-/* #undef HAVE_MEMCHR */
+/* Define to 1 if you have the `memchr' function. */
+#define HAVE_MEMCHR 1
 
-/* Define to 1 if you have the 'memset' function. */
-/* #undef HAVE_MEMSET */
+/* Define to 1 if you have the `memset' function. */
+#define HAVE_MEMSET 1
 
-/* Define to 1 if the system has the type 'ptrdiff_t'. */
-/* #undef HAVE_PTRDIFF_T */
+/* Define to 1 if the system has the type `ptrdiff_t'. */
+#define HAVE_PTRDIFF_T 1
 
-/* Define to 1 if your system has a GNU libc compatible 'realloc' function,
+/* Define to 1 if your system has a GNU libc compatible `realloc' function,
    and to 0 otherwise. */
-#define HAVE_REALLOC 0
+#define HAVE_REALLOC 1
 
 /* Define to 1 if you have the <stddef.h> header file. */
-/* #undef HAVE_STDDEF_H */
+#define HAVE_STDDEF_H 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-/* #undef HAVE_STDINT_H */
+#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdio.h> header file. */
-/* #undef HAVE_STDIO_H */
+#define HAVE_STDIO_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-/* #undef HAVE_STDLIB_H */
+#define HAVE_STDLIB_H 1
 
-/* Define to 1 if you have the 'strchr' function. */
-/* #undef HAVE_STRCHR */
+/* Define to 1 if you have the `strchr' function. */
+#define HAVE_STRCHR 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-/* #undef HAVE_STRINGS_H */
+#define HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-/* #undef HAVE_STRING_H */
+#define HAVE_STRING_H 1
 
-/* Define to 1 if you have the 'strtol' function. */
-/* #undef HAVE_STRTOL */
+/* Define to 1 if you have the `strtol' function. */
+#define HAVE_STRTOL 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-/* #undef HAVE_SYS_STAT_H */
+#define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/time.h> header file. */
-/* #undef HAVE_SYS_TIME_H */
+#define HAVE_SYS_TIME_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-/* #undef HAVE_SYS_TYPES_H */
+#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-/* #undef HAVE_UNISTD_H */
+#define HAVE_UNISTD_H 1
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define LT_OBJDIR ".libs/"
@@ -93,19 +93,19 @@
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "1.0.0"
 
-/* Define to 1 if all of the C89 standard headers exist (not just the ones
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
    backward compatibility; new code need not use it. */
-/* #undef STDC_HEADERS */
+#define STDC_HEADERS 1
 
 /* Version number of package */
 #define VERSION "1.0.0"
 
 /* Define to rpl_malloc if the replacement function should be used. */
-#define malloc rpl_malloc
+/* #undef malloc */
 
 /* Define to rpl_realloc if the replacement function should be used. */
-#define realloc rpl_realloc
+/* #undef realloc */
 
-/* Define as 'unsigned int' if <stddef.h> doesn't define. */
-#define size_t unsigned int
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* #undef size_t */

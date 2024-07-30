@@ -4,6 +4,7 @@
 #include <scidx_defines.h>
 #include <map>
 #include <utility>
+#include <cmath>
 
 typedef enum ScidxRBColor 
 { RED, BLACK } ScidxRBColor;
@@ -406,7 +407,140 @@ void convertTreeToArray(ScidxRBNode<T>* root, std::vector<int>& result) {
     }
 }
 
+template <typename T>
+int DFSrecur(ScidxRBNode<T>* node) {
+    if (!node) return 0;
+    return 1 + std::max(DFSrecur(node->left), DFSrecur(node->right));
+}
 
+
+template <typename T>
+std::vector<bool> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int levelsToTraverse) {
+    // 计算最大深度
+    int maxLevel = DFSrecur(tree.getRoot());
+    std::cout << "max level: " << maxLevel << std::endl;
+
+    std::vector<bool> result;
+    if (!tree.getRoot()) return result;
+
+    std::deque<ScidxRBNode<T>*> queueNode;
+    std::deque<bool> queueValue;  // 使用 std::deque<bool> 代替 std::queue<bool>
+
+    queueNode.push_back(tree.getRoot());
+    queueValue.push_back(true);  // 使用 true/false 替代 1/0
+
+    int currentLevel = 1;
+
+    while (!queueNode.empty()) {
+        long levelSize = queueValue.size();
+        std::cout << "Finished " << currentLevel << " currentLevel and handling " << levelSize << " level size" << std::endl;
+        std::vector<bool> tempStates;
+
+        for (long i = 0; i < levelSize; ++i) {
+            bool currentValue = queueValue.front();
+            queueValue.pop_front();
+
+            if (currentValue) {
+                ScidxRBNode<T>* node = queueNode.front();
+                queueNode.pop_front();
+                bool hasChild = (node && (node->left || node->right));
+
+                if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
+                    tempStates.push_back(hasChild ? true : false);
+                }
+
+                if (node->left) {
+                    queueNode.push_back(node->left);
+                    queueValue.push_back(true);
+                } else {
+                    queueValue.push_back(false);
+                }
+
+                if (node->right) {
+                    queueNode.push_back(node->right);
+                    queueValue.push_back(true);
+                } else {
+                    queueValue.push_back(false);
+                }
+            } else {
+                if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
+                    tempStates.push_back(false);
+                }
+                queueValue.push_back(false);
+                queueValue.push_back(false);
+            }
+        }
+
+        if (!tempStates.empty() && std::all_of(tempStates.begin(), tempStates.end(), [](bool b) { return b == false; })) {
+            break;
+        }
+
+        if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
+            result.insert(result.end(), tempStates.begin(), tempStates.end());
+        }
+
+        currentLevel++;
+    }
+
+    return result;
+}
+
+
+/* Int version */
+// template <typename T>
+// std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int levelsToTraverse) {
+//     std::vector<int> result;
+//     if (!tree.getRoot()) return result; 
+
+//     std::queue<ScidxRBNode<T>*> queue;
+//     queue.push(tree.getRoot());
+
+//     int currentLevel = 1; 
+
+//     while (!queue.empty()) {
+//         long levelSize = queue.size();
+//         std::cout << "Finished " << currentLevel << " currentLevel and handling " << levelSize << "level size" << std::endl;
+//         std::vector<int> tempStates; 
+
+//         while (levelSize > 0) {
+//             ScidxRBNode<T>* node = queue.front();
+//             queue.pop();
+
+//             // level to cut tree
+//             bool hasChild = (node && (node->left || node->right));
+//             if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
+//                 tempStates.push_back(hasChild ? 1 : 0);     
+//             }
+
+          
+//             if (node) {
+//                 queue.push(node->left ? node->left : nullptr);
+//                 queue.push(node->right ? node->right : nullptr);
+//             } else {
+//                 queue.push(nullptr);
+//                 queue.push(nullptr);
+//             }
+
+//             levelSize--;
+//         }
+        
+
+//         if (!tempStates.empty() && std::all_of(tempStates.begin(), tempStates.end(), [](int i) { return i == 0; })) {
+//             break;
+//         }
+
+    
+//         if ((currentLevel>1) && ((currentLevel - 1) % (levelsToTraverse - 1)== 0)) {
+//             result.insert(result.end(), tempStates.begin(), tempStates.end());
+//         }
+
+//         currentLevel++; 
+//     }
+
+//     return result;
+// }
+
+/*
 template <typename T>
 std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int levelsToTraverse) {
     std::vector<int> result;
@@ -425,18 +559,17 @@ std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int level
             ScidxRBNode<T>* node = queue.front();
             queue.pop();
 
-            // level to cut tree
-             bool hasChild = (node && (node->left || node->right));
-            if ((currentLevel>1) && ((currentLevel - 1) % (levelsToTraverse-1 )== 0)) {
+            // 判断是否有子节点
+            bool hasChild = (node && (node->left || node->right));
+            if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
                 tempStates.push_back(hasChild ? 1 : 0);     
             }
 
-          
+            // 插入左右子节点或者 nullptr
             if (node) {
                 queue.push(node->left ? node->left : nullptr);
                 queue.push(node->right ? node->right : nullptr);
             } else {
-                
                 queue.push(nullptr);
                 queue.push(nullptr);
             }
@@ -444,14 +577,13 @@ std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int level
             levelSize--;
         }
 
+        // 检查是否所有节点都是叶节点，如果是，则终止循环
         if (!tempStates.empty() && std::all_of(tempStates.begin(), tempStates.end(), [](int i) { return i == 0; })) {
             break;
         }
 
-    
-        if ((currentLevel>1) && ((currentLevel - 1) % (levelsToTraverse-1 )== 0)) {
-
-
+        // 如果符合记录条件，将当前层次的子树状态加入结果
+        if ((currentLevel > 1) && ((currentLevel - 1) % (levelsToTraverse - 1) == 0)) {
             result.insert(result.end(), tempStates.begin(), tempStates.end());
         }
 
@@ -460,7 +592,7 @@ std::vector<int> getAllSubTreesMap(ScidxRedBlackIntervalTree<T>& tree, int level
 
     return result;
 }
-
+*/
 
 //get the last level nodes as the tree is a balance binary tree
 template <typename T>

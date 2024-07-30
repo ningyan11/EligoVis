@@ -1,3 +1,4 @@
-./common/libzstd_la-debug.lo: common/debug.c common/debug.h
-
+common/libzstd_la-debug.lo: common/debug.c /usr/include/stdc-predef.h \
+ common/debug.h
+/usr/include/stdc-predef.h:
 common/debug.h:

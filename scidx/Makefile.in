@@ -135,7 +135,8 @@ libscidx_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libscidx_la_OBJECTS = src/libscidx_la-scidx_BytesToolkit.lo \
 	src/libscidx_la-scidx_rw.lo src/libscidx_la-scidx_utility.lo \
-	src/libscidx_la-scidx.lo src/libscidx_la-scidx_defines.lo \
+	src/libscidx_la-scidx.lo src/libscidx_la-scidx_avl.lo \
+	src/libscidx_la-scidx_defines.lo \
 	src/libscidx_la-scidx_Huffman.lo \
 	src/libscidx_la-scidx_block_min_max.lo
 libscidx_la_OBJECTS = $(am_libscidx_la_OBJECTS)
@@ -164,6 +165,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = src/$(DEPDIR)/libscidx_la-scidx.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo \
+	src/$(DEPDIR)/libscidx_la-scidx_avl.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_defines.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_rw.Plo \
@@ -247,7 +249,6 @@ EXEEXT = @EXEEXT@
 FC = @FC@
 FCFLAGS = @FCFLAGS@
 FGREP = @FGREP@
-FILECMD = @FILECMD@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -344,14 +345,15 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign
-include_HEADERS = include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_Huffman.h include/scidx_block_min_max.h
+include_HEADERS = include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_avl.h include/scidx_Huffman.h include/scidx_block_min_max.h
 lib_LTLIBRARIES = libscidx.la
 libscidx_la_CXXFLAGS = -I./include -I../zstd/ \
-	-I/opt/homebrew/Cellar/adios2/2.10.0/include $(am__append_1)
+	-I/home/nyan1/ADIOS2/local/include $(am__append_1)
 libscidx_la_LDFLAGS = -version-info 1:0:0 \
-	-L/opt/homebrew/Cellar/adios2/2.10.0/lib $(am__append_2)
+	-L/home/nyan1/ADIOS2/local/lib -lzstd -lm -L../zstd/.libs \
+	$(am__append_2)
 libscidx_la_LIDADD = ../zstd/.libs/libzstd.a -ladios2 -ladios2_cxx11_mpi
-libscidx_la_SOURCES = src/scidx_BytesToolkit.cc src/scidx_rw.cc src/scidx_utility.cc src/scidx.cc src/scidx_defines.cc src/scidx_Huffman.cc src/scidx_block_min_max.cc
+libscidx_la_SOURCES = src/scidx_BytesToolkit.cc src/scidx_rw.cc src/scidx_utility.cc src/scidx.cc src/scidx_avl.cc src/scidx_defines.cc src/scidx_Huffman.cc src/scidx_block_min_max.cc
 all: all-am
 
 .SUFFIXES:
@@ -434,6 +436,8 @@ src/libscidx_la-scidx_utility.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libscidx_la-scidx_avl.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx_defines.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx_Huffman.lo: src/$(am__dirstamp) \
@@ -455,6 +459,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_avl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_defines.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libscidx_la-scidx_rw.Plo@am__quote@ # am--include-marker
@@ -517,6 +522,13 @@ src/libscidx_la-scidx.lo: src/scidx.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/scidx.cc' object='src/libscidx_la-scidx.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -c -o src/libscidx_la-scidx.lo `test -f 'src/scidx.cc' || echo '$(srcdir)/'`src/scidx.cc
+
+src/libscidx_la-scidx_avl.lo: src/scidx_avl.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -MT src/libscidx_la-scidx_avl.lo -MD -MP -MF src/$(DEPDIR)/libscidx_la-scidx_avl.Tpo -c -o src/libscidx_la-scidx_avl.lo `test -f 'src/scidx_avl.cc' || echo '$(srcdir)/'`src/scidx_avl.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libscidx_la-scidx_avl.Tpo src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/scidx_avl.cc' object='src/libscidx_la-scidx_avl.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -c -o src/libscidx_la-scidx_avl.lo `test -f 'src/scidx_avl.cc' || echo '$(srcdir)/'`src/scidx_avl.cc
 
 src/libscidx_la-scidx_defines.lo: src/scidx_defines.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -MT src/libscidx_la-scidx_defines.lo -MD -MP -MF src/$(DEPDIR)/libscidx_la-scidx_defines.Tpo -c -o src/libscidx_la-scidx_defines.lo `test -f 'src/scidx_defines.cc' || echo '$(srcdir)/'`src/scidx_defines.cc
@@ -699,6 +711,7 @@ distclean: distclean-am
 		-rm -f src/$(DEPDIR)/libscidx_la-scidx.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo
+	-rm -f src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_defines.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_rw.Plo
@@ -751,6 +764,7 @@ maintainer-clean: maintainer-clean-am
 		-rm -f src/$(DEPDIR)/libscidx_la-scidx.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo
+	-rm -f src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_defines.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_rw.Plo

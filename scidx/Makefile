@@ -87,8 +87,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = arm-apple-darwin23.1.0
-host_triplet = arm-apple-darwin23.1.0
+build_triplet = x86_64-pc-linux-gnu
+host_triplet = x86_64-pc-linux-gnu
 #am__append_1 = -fopenmp
 #am__append_2 = -fopenmp
 subdir = scidx
@@ -135,7 +135,8 @@ libscidx_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libscidx_la_OBJECTS = src/libscidx_la-scidx_BytesToolkit.lo \
 	src/libscidx_la-scidx_rw.lo src/libscidx_la-scidx_utility.lo \
-	src/libscidx_la-scidx.lo src/libscidx_la-scidx_defines.lo \
+	src/libscidx_la-scidx.lo src/libscidx_la-scidx_avl.lo \
+	src/libscidx_la-scidx_defines.lo \
 	src/libscidx_la-scidx_Huffman.lo \
 	src/libscidx_la-scidx_block_min_max.lo
 libscidx_la_OBJECTS = $(am_libscidx_la_OBJECTS)
@@ -164,6 +165,7 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = src/$(DEPDIR)/libscidx_la-scidx.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo \
+	src/$(DEPDIR)/libscidx_la-scidx_avl.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_defines.Plo \
 	src/$(DEPDIR)/libscidx_la-scidx_rw.Plo \
@@ -214,18 +216,18 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/Users/yanning/scidx/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/home/nyan1/scidx/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} '/Users/yanning/scidx/missing' autoconf
-AUTOHEADER = ${SHELL} '/Users/yanning/scidx/missing' autoheader
-AUTOMAKE = ${SHELL} '/Users/yanning/scidx/missing' automake-1.16
-AWK = awk
+AUTOCONF = ${SHELL} '/home/nyan1/scidx/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/nyan1/scidx/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/nyan1/scidx/missing' automake-1.16
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -O3 -std=c99 -Wall
-CPPFLAGS = -O3 -std=c++11 -Wall
+CPPFLAGS = -I/home/nyan1/libgd/include
 CSCOPE = cscope
 CTAGS = ctags
 CXX = g++
@@ -236,44 +238,43 @@ CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
-DSYMUTIL = dsymutil
+DSYMUTIL = 
 DUMPBIN = 
-ECHO_C = \c
-ECHO_N = 
+ECHO_C = 
+ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/bin/grep -E
+EGREP = /bin/grep -E
 ETAGS = etags
 EXEEXT = 
-FC = gfortran
-FCFLAGS = -g -O2
-FGREP = /usr/bin/grep -F
-FILECMD = file
-GREP = /usr/bin/grep
-INSTALL = /usr/bin/install -c
+FC = 
+FCFLAGS = 
+FGREP = /bin/grep -F
+GREP = /bin/grep
+INSTALL = /bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld
-LDFLAGS = 
-LIBOBJS =  ${LIBOBJDIR}malloc$U.o ${LIBOBJDIR}realloc$U.o
+LD = /bin/ld -m elf_x86_64
+LDFLAGS = -L/home/nyan1/libgd/lib -lgd
+LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LIPO = lipo
+LIPO = 
 LN_S = ln -s
-LTLIBOBJS =  ${LIBOBJDIR}malloc$U.lo ${LIBOBJDIR}realloc$U.lo
+LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
 MAINT = #
-MAKEINFO = ${SHELL} '/Users/yanning/scidx/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/nyan1/scidx/missing' makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = mkdir -p
-NM = /usr/bin/nm -B
-NMEDIT = nmedit
+MKDIR_P = /bin/mkdir -p
+NM = /bin/nm -B
+NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
 OPENMP_FLAGS = 
-OTOOL = otool
-OTOOL64 = :
+OTOOL = 
+OTOOL64 = 
 PACKAGE = scidx
 PACKAGE_BUGREPORT = sdi1@anl.gov
 PACKAGE_NAME = scidx
@@ -283,46 +284,46 @@ PACKAGE_URL =
 PACKAGE_VERSION = 1.0.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
-SED = /usr/bin/sed
+SED = /bin/sed
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = strip
 VERSION = 1.0.0
-abs_builddir = /Users/yanning/scidx/scidx
-abs_srcdir = /Users/yanning/scidx/scidx
-abs_top_builddir = /Users/yanning/scidx
-abs_top_srcdir = /Users/yanning/scidx
+abs_builddir = /home/nyan1/scidx/scidx
+abs_srcdir = /home/nyan1/scidx/scidx
+abs_top_builddir = /home/nyan1/scidx
+abs_top_srcdir = /home/nyan1/scidx
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
-ac_ct_FC = gfortran
+ac_ct_FC = 
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = arm-apple-darwin23.1.0
+build = x86_64-pc-linux-gnu
 build_alias = 
-build_cpu = arm
-build_os = darwin23.1.0
-build_vendor = apple
+build_cpu = x86_64
+build_os = linux-gnu
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = arm-apple-darwin23.1.0
+host = x86_64-pc-linux-gnu
 host_alias = 
-host_cpu = arm
-host_os = darwin23.1.0
-host_vendor = apple
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/yanning/scidx/install-sh
+install_sh = ${SHELL} /home/nyan1/scidx/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -344,14 +345,15 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 AUTOMAKE_OPTIONS = foreign
-include_HEADERS = include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_Huffman.h include/scidx_block_min_max.h
+include_HEADERS = include/scidx_rb_interval_tree.h include/scidx_avl_interval_tree.h include/scidx_defines.h include/scidx_BytesToolkit.h include/scidx_rw.h include/scidx_utility.h include/scidx.h include/scidx_avl.h include/scidx_Huffman.h include/scidx_block_min_max.h
 lib_LTLIBRARIES = libscidx.la
 libscidx_la_CXXFLAGS = -I./include -I../zstd/ \
-	-I/opt/homebrew/Cellar/adios2/2.10.0/include $(am__append_1)
+	-I/home/nyan1/ADIOS2/local/include $(am__append_1)
 libscidx_la_LDFLAGS = -version-info 1:0:0 \
-	-L/opt/homebrew/Cellar/adios2/2.10.0/lib $(am__append_2)
+	-L/home/nyan1/ADIOS2/local/lib -lzstd -lm -L../zstd/.libs \
+	$(am__append_2)
 libscidx_la_LIDADD = ../zstd/.libs/libzstd.a -ladios2 -ladios2_cxx11_mpi
-libscidx_la_SOURCES = src/scidx_BytesToolkit.cc src/scidx_rw.cc src/scidx_utility.cc src/scidx.cc src/scidx_defines.cc src/scidx_Huffman.cc src/scidx_block_min_max.cc
+libscidx_la_SOURCES = src/scidx_BytesToolkit.cc src/scidx_rw.cc src/scidx_utility.cc src/scidx.cc src/scidx_avl.cc src/scidx_defines.cc src/scidx_Huffman.cc src/scidx_block_min_max.cc
 all: all-am
 
 .SUFFIXES:
@@ -434,6 +436,8 @@ src/libscidx_la-scidx_utility.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libscidx_la-scidx_avl.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx_defines.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libscidx_la-scidx_Huffman.lo: src/$(am__dirstamp) \
@@ -455,6 +459,7 @@ distclean-compile:
 include src/$(DEPDIR)/libscidx_la-scidx.Plo # am--include-marker
 include src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo # am--include-marker
 include src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo # am--include-marker
+include src/$(DEPDIR)/libscidx_la-scidx_avl.Plo # am--include-marker
 include src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo # am--include-marker
 include src/$(DEPDIR)/libscidx_la-scidx_defines.Plo # am--include-marker
 include src/$(DEPDIR)/libscidx_la-scidx_rw.Plo # am--include-marker
@@ -517,6 +522,13 @@ src/libscidx_la-scidx.lo: src/scidx.cc
 #	$(AM_V_CXX)source='src/scidx.cc' object='src/libscidx_la-scidx.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -c -o src/libscidx_la-scidx.lo `test -f 'src/scidx.cc' || echo '$(srcdir)/'`src/scidx.cc
+
+src/libscidx_la-scidx_avl.lo: src/scidx_avl.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -MT src/libscidx_la-scidx_avl.lo -MD -MP -MF src/$(DEPDIR)/libscidx_la-scidx_avl.Tpo -c -o src/libscidx_la-scidx_avl.lo `test -f 'src/scidx_avl.cc' || echo '$(srcdir)/'`src/scidx_avl.cc
+	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libscidx_la-scidx_avl.Tpo src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
+#	$(AM_V_CXX)source='src/scidx_avl.cc' object='src/libscidx_la-scidx_avl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -c -o src/libscidx_la-scidx_avl.lo `test -f 'src/scidx_avl.cc' || echo '$(srcdir)/'`src/scidx_avl.cc
 
 src/libscidx_la-scidx_defines.lo: src/scidx_defines.cc
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libscidx_la_CXXFLAGS) $(CXXFLAGS) -MT src/libscidx_la-scidx_defines.lo -MD -MP -MF src/$(DEPDIR)/libscidx_la-scidx_defines.Tpo -c -o src/libscidx_la-scidx_defines.lo `test -f 'src/scidx_defines.cc' || echo '$(srcdir)/'`src/scidx_defines.cc
@@ -699,6 +711,7 @@ distclean: distclean-am
 		-rm -f src/$(DEPDIR)/libscidx_la-scidx.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo
+	-rm -f src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_defines.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_rw.Plo
@@ -751,6 +764,7 @@ maintainer-clean: maintainer-clean-am
 		-rm -f src/$(DEPDIR)/libscidx_la-scidx.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_BytesToolkit.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_Huffman.Plo
+	-rm -f src/$(DEPDIR)/libscidx_la-scidx_avl.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_block_min_max.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_defines.Plo
 	-rm -f src/$(DEPDIR)/libscidx_la-scidx_rw.Plo

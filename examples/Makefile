@@ -86,11 +86,11 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = arm-apple-darwin23.1.0
-host_triplet = arm-apple-darwin23.1.0
+build_triplet = x86_64-pc-linux-gnu
+host_triplet = x86_64-pc-linux-gnu
 #am__append_1 = -fopenmp
 bin_PROGRAMS = test_rb$(EXEEXT) test_avl$(EXEEXT) \
-	test_avl_adios$(EXEEXT)
+	test_avl_adios$(EXEEXT) test_avl_decompress$(EXEEXT)
 subdir = examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -113,6 +113,10 @@ am__v_lt_1 =
 am_test_avl_adios_OBJECTS = test_avl_interval_tree_adios.$(OBJEXT)
 test_avl_adios_OBJECTS = $(am_test_avl_adios_OBJECTS)
 test_avl_adios_DEPENDENCIES = ../scidx/.libs/libscidx.a
+am_test_avl_decompress_OBJECTS =  \
+	test_avl_interval_tree_decompress.$(OBJEXT)
+test_avl_decompress_OBJECTS = $(am_test_avl_decompress_OBJECTS)
+test_avl_decompress_DEPENDENCIES = ../scidx/.libs/libscidx.a
 am_test_rb_OBJECTS = test_rb_interval_tree.$(OBJEXT)
 test_rb_OBJECTS = $(am_test_rb_OBJECTS)
 test_rb_DEPENDENCIES = ../scidx/.libs/libscidx.a
@@ -133,6 +137,7 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/test_avl_interval_tree.Po \
 	./$(DEPDIR)/test_avl_interval_tree_adios.Po \
+	./$(DEPDIR)/test_avl_interval_tree_decompress.Po \
 	./$(DEPDIR)/test_rb_interval_tree.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -154,9 +159,9 @@ am__v_CXXLD_ = $(am__v_CXXLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(test_avl_SOURCES) $(test_avl_adios_SOURCES) \
-	$(test_rb_SOURCES)
+	$(test_avl_decompress_SOURCES) $(test_rb_SOURCES)
 DIST_SOURCES = $(test_avl_SOURCES) $(test_avl_adios_SOURCES) \
-	$(test_rb_SOURCES)
+	$(test_avl_decompress_SOURCES) $(test_rb_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -181,18 +186,18 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/Users/yanning/scidx/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/home/nyan1/scidx/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} '/Users/yanning/scidx/missing' autoconf
-AUTOHEADER = ${SHELL} '/Users/yanning/scidx/missing' autoheader
-AUTOMAKE = ${SHELL} '/Users/yanning/scidx/missing' automake-1.16
-AWK = awk
+AUTOCONF = ${SHELL} '/home/nyan1/scidx/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/nyan1/scidx/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/nyan1/scidx/missing' automake-1.16
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -O3 -std=c99 -Wall
-CPPFLAGS = -O3 -std=c++11 -Wall
+CPPFLAGS = -I/home/nyan1/libgd/include
 CSCOPE = cscope
 CTAGS = ctags
 CXX = g++
@@ -203,44 +208,43 @@ CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 DLLTOOL = false
-DSYMUTIL = dsymutil
+DSYMUTIL = 
 DUMPBIN = 
-ECHO_C = \c
-ECHO_N = 
+ECHO_C = 
+ECHO_N = -n
 ECHO_T = 
-EGREP = /usr/bin/grep -E
+EGREP = /bin/grep -E
 ETAGS = etags
 EXEEXT = 
-FC = gfortran
-FCFLAGS = -g -O2
-FGREP = /usr/bin/grep -F
-FILECMD = file
-GREP = /usr/bin/grep
-INSTALL = /usr/bin/install -c
+FC = 
+FCFLAGS = 
+FGREP = /bin/grep -F
+GREP = /bin/grep
+INSTALL = /bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
-LD = /usr/bin/ld
-LDFLAGS = 
-LIBOBJS =  ${LIBOBJDIR}malloc$U.o ${LIBOBJDIR}realloc$U.o
+LD = /bin/ld -m elf_x86_64
+LDFLAGS = -L/home/nyan1/libgd/lib -lgd
+LIBOBJS = 
 LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LIPO = lipo
+LIPO = 
 LN_S = ln -s
-LTLIBOBJS =  ${LIBOBJDIR}malloc$U.lo ${LIBOBJDIR}realloc$U.lo
+LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
 MAINT = #
-MAKEINFO = ${SHELL} '/Users/yanning/scidx/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/nyan1/scidx/missing' makeinfo
 MANIFEST_TOOL = :
-MKDIR_P = mkdir -p
-NM = /usr/bin/nm -B
-NMEDIT = nmedit
+MKDIR_P = /bin/mkdir -p
+NM = /bin/nm -B
+NMEDIT = 
 OBJDUMP = objdump
 OBJEXT = o
 OPENMP_FLAGS = 
-OTOOL = otool
-OTOOL64 = :
+OTOOL = 
+OTOOL64 = 
 PACKAGE = scidx
 PACKAGE_BUGREPORT = sdi1@anl.gov
 PACKAGE_NAME = scidx
@@ -250,46 +254,46 @@ PACKAGE_URL =
 PACKAGE_VERSION = 1.0.0
 PATH_SEPARATOR = :
 RANLIB = ranlib
-SED = /usr/bin/sed
+SED = /bin/sed
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = strip
 VERSION = 1.0.0
-abs_builddir = /Users/yanning/scidx/examples
-abs_srcdir = /Users/yanning/scidx/examples
-abs_top_builddir = /Users/yanning/scidx
-abs_top_srcdir = /Users/yanning/scidx
+abs_builddir = /home/nyan1/scidx/examples
+abs_srcdir = /home/nyan1/scidx/examples
+abs_top_builddir = /home/nyan1/scidx
+abs_top_srcdir = /home/nyan1/scidx
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
-ac_ct_FC = gfortran
+ac_ct_FC = 
 am__include = include
 am__leading_dot = .
 am__quote = 
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
-build = arm-apple-darwin23.1.0
+build = x86_64-pc-linux-gnu
 build_alias = 
-build_cpu = arm
-build_os = darwin23.1.0
-build_vendor = apple
+build_cpu = x86_64
+build_os = linux-gnu
+build_vendor = pc
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = arm-apple-darwin23.1.0
+host = x86_64-pc-linux-gnu
 host_alias = 
-host_cpu = arm
-host_os = darwin23.1.0
-host_vendor = apple
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/yanning/scidx/install-sh
+install_sh = ${SHELL} /home/nyan1/scidx/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -311,16 +315,18 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 AUTOMAKE_OPTIONS = foreign
-AM_CPPFLAGS = -I../scidx/include -I../../zstd/ \
-	-I/opt/homebrew/Cellar/adios2/2.10.0/include $(am__append_1)
+AM_CPPFLAGS = -I../scidx/include -I/home/nyan1/ADIOS2/local/include \
+	$(am__append_1)
 AM_FCFLAGS = -I../scidx/include -I../scidx/
 #AM_LDFLAGS = -fopenmp
 test_rb_SOURCES = test_rb_interval_tree.cc
-test_rb_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd -L/opt/homebrew/Cellar/adios2/2.10.0/lib -ladios2_cxx11
+test_rb_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd -L/home/nyan1/ADIOS2/local/lib -ladios2_cxx11
 test_avl_SOURCES = test_avl_interval_tree.cc
 test_avl_LDADD = ../scidx/.libs/libscidx.a -lm
 test_avl_adios_SOURCES = test_avl_interval_tree_adios.cc
-test_avl_adios_LDADD = ../scidx/.libs/libscidx.a -L/opt/homebrew/Cellar/adios2/2.10.0/lib -ladios2_cxx11
+test_avl_adios_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd -L/home/nyan1/ADIOS2/local/lib -ladios2_cxx11
+test_avl_decompress_SOURCES = test_avl_interval_tree_decompress.cc
+test_avl_decompress_LDADD = ../scidx/.libs/libscidx.a -lm -L../zstd/.libs -lzstd -L/home/nyan1/ADIOS2/local/lib -ladios2_cxx11
 all: all-am
 
 .SUFFIXES:
@@ -412,6 +418,10 @@ test_avl_adios$(EXEEXT): $(test_avl_adios_OBJECTS) $(test_avl_adios_DEPENDENCIES
 	@rm -f test_avl_adios$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_avl_adios_OBJECTS) $(test_avl_adios_LDADD) $(LIBS)
 
+test_avl_decompress$(EXEEXT): $(test_avl_decompress_OBJECTS) $(test_avl_decompress_DEPENDENCIES) $(EXTRA_test_avl_decompress_DEPENDENCIES) 
+	@rm -f test_avl_decompress$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(test_avl_decompress_OBJECTS) $(test_avl_decompress_LDADD) $(LIBS)
+
 test_rb$(EXEEXT): $(test_rb_OBJECTS) $(test_rb_DEPENDENCIES) $(EXTRA_test_rb_DEPENDENCIES) 
 	@rm -f test_rb$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_rb_OBJECTS) $(test_rb_LDADD) $(LIBS)
@@ -424,6 +434,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/test_avl_interval_tree.Po # am--include-marker
 include ./$(DEPDIR)/test_avl_interval_tree_adios.Po # am--include-marker
+include ./$(DEPDIR)/test_avl_interval_tree_decompress.Po # am--include-marker
 include ./$(DEPDIR)/test_rb_interval_tree.Po # am--include-marker
 
 $(am__depfiles_remade):
@@ -590,6 +601,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/test_avl_interval_tree.Po
 	-rm -f ./$(DEPDIR)/test_avl_interval_tree_adios.Po
+	-rm -f ./$(DEPDIR)/test_avl_interval_tree_decompress.Po
 	-rm -f ./$(DEPDIR)/test_rb_interval_tree.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -638,6 +650,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/test_avl_interval_tree.Po
 	-rm -f ./$(DEPDIR)/test_avl_interval_tree_adios.Po
+	-rm -f ./$(DEPDIR)/test_avl_interval_tree_decompress.Po
 	-rm -f ./$(DEPDIR)/test_rb_interval_tree.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic

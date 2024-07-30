@@ -85,6 +85,8 @@
         "stack": "cpp",
         "__verbose_abort": "cpp",
         "__tree": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp"
     }
 }
