@@ -216,6 +216,8 @@ void encode(HuffmanTree *huffmanTree, int *s, size_t length, unsigned char *out,
 	{
 		state = s[i];
 		bitSize = huffmanTree->cout[state];
+		
+		//std::cout << "i: " << i << ", State: " << state << ", bitSize: " << static_cast<int>(bitSize) << std::endl;
 
 		//printf("%d %d : %d %u\n",i, state, bitSize, (code[state])[0] >> (64-cout[state]));
 		//debug: compute the average bitSize and the count that is over 32...
@@ -231,14 +233,21 @@ void encode(HuffmanTree *huffmanTree, int *s, size_t length, unsigned char *out,
 		{
 			byteSize = bitSize%8==0 ? bitSize/8 : bitSize/8+1; //it's equal to the number of bytes involved (for *outSize)
 			byteSizep = bitSize/8; //it's used to move the pointer p for next data
+			//std::cout << "byteSize: " << static_cast<int>(byteSize) << ", Output pointer (p): " << static_cast<void*>(p) << std::endl;
+
 			if(byteSize<=8)
 			{
 				longToBytes_bigEndian(p, (huffmanTree->code[state])[0]);
+				//std::cout << "After longToBytes_bigEndian, pointer (p): " << static_cast<void*>(p) << std::endl;
+  
 				p += byteSizep;
 			}
 			else //byteSize>8
 			{
+				
 				longToBytes_bigEndian(p, (huffmanTree->code[state])[0]);
+				//std::cout << "After longToBytes_bigEndian, pointer (p): " << static_cast<void*>(p) << std::endl;
+    
 				p += 8;
 				longToBytes_bigEndian(p, (huffmanTree->code[state])[1]);
 				p += (byteSizep - 8);
@@ -248,6 +257,8 @@ void encode(HuffmanTree *huffmanTree, int *s, size_t length, unsigned char *out,
 		}
 		else
 		{
+			//std::cout << "lackBits: " << static_cast<int>(lackBits) << ", Output pointer (p): " << static_cast<void*>(p) << std::endl;
+
 			*p = (*p) | (unsigned char)((huffmanTree->code[state])[0] >> (64 - lackBits));
 			if(lackBits < bitSize)
 			{
@@ -307,6 +318,8 @@ void encode(HuffmanTree *huffmanTree, int *s, size_t length, unsigned char *out,
 	printf("bitSize21 ratio = %f\n", ((float)bitSize21)/length);
 	printf("bitSize32 ratio = %f\n", ((float)bitSize32)/length);
 	printf("avg bit size = %f\n", ((float)totalBitSize)/length);*/
+	//std::cout << "Updated outSize: " << *outSize << ", Updated pointer (p): " << static_cast<void*>(p) << std::endl;
+
 }
 
 void decode(unsigned char *s, size_t targetLength, node t, int *out)

@@ -1,10 +1,10 @@
 deprecated/libzstd_la-zbuff_common.lo: deprecated/zbuff_common.c \
  /usr/include/stdc-predef.h common/error_private.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h common/zstd_errors.h \
- deprecated/zbuff.h zstd.h
+ /cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stddef.h \
+ common/zstd_errors.h deprecated/zbuff.h zstd.h
 /usr/include/stdc-predef.h:
 common/error_private.h:
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
+/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stddef.h:
 common/zstd_errors.h:
 deprecated/zbuff.h:
 zstd.h:

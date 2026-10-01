@@ -1,51 +1,40 @@
 compress/libzstd_la-zstd_compress.lo: compress/zstd_compress.c \
  /usr/include/stdc-predef.h /usr/include/string.h \
- /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
- /usr/include/features.h /usr/include/features-time64.h \
- /usr/include/x86_64-linux-gnu/bits/wordsize.h \
- /usr/include/x86_64-linux-gnu/bits/timesize.h \
- /usr/include/x86_64-linux-gnu/sys/cdefs.h \
- /usr/include/x86_64-linux-gnu/bits/long-double.h \
- /usr/include/x86_64-linux-gnu/gnu/stubs.h \
- /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
- /usr/include/x86_64-linux-gnu/bits/string_fortified.h common/cpu.h \
- common/mem.h /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h \
- /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/types.h \
- /usr/include/x86_64-linux-gnu/bits/typesizes.h \
- /usr/include/x86_64-linux-gnu/bits/time64.h \
- /usr/include/x86_64-linux-gnu/bits/wchar.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h common/mem.h \
- compress/hist.h common/fse.h common/bitstream.h common/debug.h \
- common/error_private.h common/zstd_errors.h common/huf.h \
+ /usr/include/bits/libc-header-start.h /usr/include/features.h \
+ /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
+ /usr/include/bits/long-double.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
+ /cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stddef.h \
+ common/cpu.h common/mem.h \
+ /cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/types.h \
+ /usr/include/bits/typesizes.h /usr/include/bits/wchar.h \
+ /usr/include/bits/stdint-intn.h /usr/include/bits/stdint-uintn.h \
+ common/mem.h compress/hist.h common/fse.h common/bitstream.h \
+ common/debug.h common/error_private.h common/zstd_errors.h common/huf.h \
  compress/zstd_compress_internal.h common/zstd_internal.h \
  common/compiler.h zstd.h common/fse.h common/huf.h common/xxhash.h \
  compress/zstd_fast.h compress/zstd_double_fast.h compress/zstd_lazy.h \
  compress/zstd_opt.h compress/zstd_ldm.h
 /usr/include/stdc-predef.h:
 /usr/include/string.h:
-/usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
+/usr/include/bits/libc-header-start.h:
 /usr/include/features.h:
-/usr/include/features-time64.h:
-/usr/include/x86_64-linux-gnu/bits/wordsize.h:
-/usr/include/x86_64-linux-gnu/bits/timesize.h:
-/usr/include/x86_64-linux-gnu/sys/cdefs.h:
-/usr/include/x86_64-linux-gnu/bits/long-double.h:
-/usr/include/x86_64-linux-gnu/gnu/stubs.h:
-/usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
-/usr/include/x86_64-linux-gnu/bits/string_fortified.h:
+/usr/include/sys/cdefs.h:
+/usr/include/bits/wordsize.h:
+/usr/include/bits/long-double.h:
+/usr/include/gnu/stubs.h:
+/usr/include/gnu/stubs-64.h:
+/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stddef.h:
 common/cpu.h:
 common/mem.h:
-/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
+/cm/shared/apps/spack/0.17.3/cpu/b/opt/spack/linux-rocky8-zen/gcc-8.5.0/gcc-10.2.0-npcyll4gxjhf4tejksmdzlsl3d3usqpd/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/stdint.h:
 /usr/include/stdint.h:
-/usr/include/x86_64-linux-gnu/bits/types.h:
-/usr/include/x86_64-linux-gnu/bits/typesizes.h:
-/usr/include/x86_64-linux-gnu/bits/time64.h:
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
-/usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
-/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
+/usr/include/bits/types.h:
+/usr/include/bits/typesizes.h:
+/usr/include/bits/wchar.h:
+/usr/include/bits/stdint-intn.h:
+/usr/include/bits/stdint-uintn.h:
 common/mem.h:
 compress/hist.h:
 common/fse.h:

@@ -165,11 +165,13 @@ int main(int argc, char *argv[]) {
     
     
     ScidxAVLIntervalTree<float> avlIntervalTree;
+     //因为min值相同而未被插入的点
+     std::vector<SkippedNode<float>> skippedIntervals;
 
     for (size_t i = 0; i < intervals.size(); i++)
     {
         //std::cout << intervals[i].low << " " << intervals[i].high << std::endl;
-        avlIntervalTree.insertNode(i, intervals[i]);
+        avlIntervalTree.insertNode(i, intervals[i], skippedIntervals);
     }
     std::cout << "AVL Interval Tree after insertions:" << std::endl;
     avlIntervalTree.display();
